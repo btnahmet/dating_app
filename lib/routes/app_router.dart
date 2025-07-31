@@ -1,5 +1,6 @@
 import 'package:dating_app/features/auth/presentation/login_screen.dart';
 import 'package:dating_app/features/auth/presentation/register_screen.dart';
+import 'package:dating_app/features/auth/presentation/upload_photo_screen.dart';
 import 'package:go_router/go_router.dart';
 
 class AppRouter {
@@ -13,6 +14,10 @@ class AppRouter {
       GoRoute(
         path: '/register',
         builder: (context, state) => const RegisterScreen(),
+      ),
+      GoRoute(
+        path: '/upload',
+        builder: (context, state) => const UploadPhotoScreen(),
       ),
       // GoRoute(
       //   path: '/home',

@@ -67,15 +67,14 @@ class RegisterScreen extends StatelessWidget {
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     TextSpan(
-                        text:
-                            ' Bu sözleşmeyi okuyarak devam ediniz lütfen.')
+                        text: ' Bu sözleşmeyi okuyarak devam ediniz lütfen.')
                   ],
                 ),
               ),
               const SizedBox(height: 24),
               CustomButton(
                 text: 'Şimdi Kaydol',
-                onTap: () {},
+                onTap: () => context.push('/upload'),
               ),
               const SizedBox(height: 24),
               Row(
