@@ -1,11 +1,93 @@
+import 'package:dating_app/core/services/api_service.dart';
+import 'package:dating_app/core/services/token_storage_service.dart';
 import 'package:dating_app/widgets/custom_button.dart';
 import 'package:dating_app/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _apiService = ApiService();
+  final _tokenStorage = TokenStorageService();
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _login() async {
+    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('E-posta ve şifre gerekli')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      print('Login işlemi başlatılıyor...');
+      final response = await _apiService.login(
+        _emailController.text,
+        _passwordController.text,
+      );
+      
+      print('Login başarılı, token alınıyor...');
+      print('Response yapısı: $response');
+      Map<String, dynamic> data;
+      try {
+        data = Map<String, dynamic>.from(response['data']);
+      } catch (e) {
+        print('Data cast hatası: $e');
+        throw Exception('Response data map cast edilemedi: $e');
+      }
+      print('Response data: $data');
+      print('Response data token: ${data['token']}');
+      
+      // Token'ı al ve kaydet
+      if (data['token'] != null) {
+        final token = data['token'];
+        await _tokenStorage.saveToken(token);
+        print('Token kaydedildi: $token');
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Giriş başarılı!')),
+          );
+          context.go('/home');
+        }
+      } else {
+        print('Token bulunamadı - Data: $data');
+        throw Exception('Token alınamadı - Response: $response');
+      }
+    } catch (e) {
+      print('Login hatası: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Giriş başarısız: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,15 +115,17 @@ class LoginScreen extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 32),
-              const CustomTextField(
+              CustomTextField(
                 hintText: 'E-Posta',
                 prefixIcon: Icons.email_outlined,
+                controller: _emailController,
               ),
               const SizedBox(height: 16),
-              const CustomTextField(
+              CustomTextField(
                 hintText: 'Şifre',
                 prefixIcon: Icons.lock_outline,
                 isPassword: true,
+                controller: _passwordController,
               ),
               const SizedBox(height: 12),
               Align(
@@ -53,8 +137,8 @@ class LoginScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               CustomButton(
-                text: 'Giriş Yap',
-                onTap: () {},
+                text: _isLoading ? 'Giriş Yapılıyor...' : 'Giriş Yap',
+                onTap: _isLoading ? null : () => _login(),
               ),
               const SizedBox(height: 24),
               const Row(

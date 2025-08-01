@@ -124,9 +124,24 @@
 //   }
 // }
 // main.dart
+// import 'package:dating_app/app.dart';
+// import 'package:flutter/material.dart';
+
+// void main() {
+//   runApp(const App());
+// }
 import 'package:dating_app/app.dart';
+import 'package:dating_app/features/home/viewmodel/home_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const App());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => HomeViewModel()),
+      ],
+      child: const App(),
+    ),
+  );
 }
