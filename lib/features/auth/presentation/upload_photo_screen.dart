@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dating_app/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:go_router/go_router.dart';
 
 class UploadPhotoScreen extends StatefulWidget {
   const UploadPhotoScreen({super.key});
@@ -94,7 +95,7 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
               const Spacer(),
               CustomButton(
                 text: 'Devam Et',
-                onTap: () {},
+                onTap: () => context.go('/home'),
               ),
               const SizedBox(height: 24),
             ],

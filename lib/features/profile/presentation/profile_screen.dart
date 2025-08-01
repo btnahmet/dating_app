@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import '../../home/viewmodel/home_view_model.dart';
 import '../../home/model/movie_model.dart';
+import '../../premium/presentation/widgets/limited_offer_bottom_sheet.dart';
+import '../../../core/services/api_service.dart';
+import '../../../core/services/token_storage_service.dart';
+import 'dart:convert'; // Added for json and base64Url
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -12,9 +17,16 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  final _apiService = ApiService();
+  final _tokenStorage = TokenStorageService();
+  bool _isLoggingOut = false;
+  String _userName = 'Kullanıcı';
+  String _userPhotoUrl = '';
+
   @override
   void initState() {
     super.initState();
+    _loadUserInfo();
     // Beğenilen filmleri yükle
     Future.microtask(() {
       final viewModel = Provider.of<HomeViewModel>(context, listen: false);
@@ -22,9 +34,79 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
   }
 
+  Future<void> _loadUserInfo() async {
+    try {
+      // Token'dan kullanıcı bilgilerini al
+      final token = await _tokenStorage.getToken();
+      if (token != null) {
+        // JWT token'dan kullanıcı bilgilerini decode et
+        final parts = token.split('.');
+        if (parts.length == 3) {
+          final payload = parts[1];
+          final normalized = base64Url.normalize(payload);
+          final resp = utf8.decode(base64Url.decode(normalized));
+          final payloadMap = json.decode(resp);
+          
+          setState(() {
+            _userName = payloadMap['name'] ?? 'Kullanıcı';
+            // Fotoğraf URL'i varsa kullan, yoksa boş bırak
+            _userPhotoUrl = payloadMap['photoUrl'] ?? '';
+          });
+        }
+      }
+    } catch (e) {
+      print('Kullanıcı bilgileri yüklenirken hata: $e');
+    }
+  }
+
+  void _showLimitedOffer() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const LimitedOfferBottomSheet(),
+    );
+  }
+
+  void _navigateToUploadPhoto() {
+    context.push('/upload-photo');
+  }
+
+  Future<void> _logout() async {
+    setState(() {
+      _isLoggingOut = true;
+    });
+
+    try {
+      await _apiService.logout();
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Çıkış yapıldı')),
+        );
+        context.go('/login');
+      }
+    } catch (e) {
+      print('Logout hatası: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Çıkış hatası: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoggingOut = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final viewModel = Provider.of<HomeViewModel>(context);
     return Scaffold(
+      backgroundColor: Colors.black,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -37,8 +119,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   CircleAvatar(
                     backgroundColor: const Color(0xFF1F1F1F),
                     child: IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.white),
-                      onPressed: () => Navigator.of(context).pop(),
+                      icon: _isLoggingOut 
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : const Icon(Icons.arrow_back, color: Colors.white),
+                      onPressed: _isLoggingOut ? null : _logout,
                     ),
                   ),
                   const Spacer(),
@@ -49,21 +140,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                   ),
                   const Spacer(),
-                  OutlinedButton(
-                    onPressed: () {},
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Colors.red),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      foregroundColor: Colors.white,
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(24),
                     ),
-                    child: const Row(
-                      children: [
-                        Icon(LucideIcons.gem, size: 16),
-                        SizedBox(width: 6),
-                        Text('Sınırlı Teklif'),
-                      ],
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: _showLimitedOffer,
+                        borderRadius: BorderRadius.circular(24),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(LucideIcons.gem, size: 16, color: Colors.white),
+                              const SizedBox(width: 6),
+                              Text('Sınırlı Teklif', style: TextStyle(color: Colors.white)),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -72,10 +170,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const CircleAvatar(
+                  CircleAvatar(
                     radius: 36,
-                    backgroundImage: NetworkImage(
-                        'https://i.pravatar.cc/150?img=47'),
+                    backgroundColor: _userPhotoUrl.isEmpty ? const Color(0xFF1F1F1F) : null,
+                    backgroundImage: _userPhotoUrl.isNotEmpty ? NetworkImage(_userPhotoUrl) : null,
+                    child: _userPhotoUrl.isEmpty 
+                      ? const Icon(Icons.person, color: Colors.white, size: 36)
+                      : null,
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -83,7 +184,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Ayça Aydoğan',
+                          _userName,
                           style:
                               Theme.of(context).textTheme.titleMedium?.copyWith(
                                     fontWeight: FontWeight.bold,
@@ -100,20 +201,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ],
                     ),
                   ),
-                  OutlinedButton(
-                    onPressed: () {},
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Colors.red),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      foregroundColor: Colors.white,
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(24),
                     ),
-                    child: const Text('Fotoğraf Ekle'),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: _navigateToUploadPhoto,
+                        borderRadius: BorderRadius.circular(24),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          child: Text('Fotoğraf Ekle', style: TextStyle(color: Colors.white)),
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
               Text(
                 'Beğendiğim Filmler',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -143,7 +250,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         crossAxisCount: 2,
                         crossAxisSpacing: 16,
                         mainAxisSpacing: 16,
-                        mainAxisExtent: 200, // 180'den 200'e çıkardım
+                        mainAxisExtent: 200,
                       ),
                       itemBuilder: (context, index) {
                         final movie = viewModel.favoriteMovies[index];
@@ -163,7 +270,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
 class _FavoriteMovieCard extends StatelessWidget {
   final MovieModel movie;
-  
+
   const _FavoriteMovieCard({required this.movie});
 
   @override
@@ -175,6 +282,7 @@ class _FavoriteMovieCard extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           ClipRRect(
             borderRadius: const BorderRadius.only(
@@ -183,23 +291,22 @@ class _FavoriteMovieCard extends StatelessWidget {
             ),
             child: Image.network(
               movie.posterUrl,
-              height: 120, // Yüksekliği azalttım
+              height: 120,
               width: double.infinity,
               fit: BoxFit.cover,
               errorBuilder: (_, __, ___) => Container(
-                height: 120, // Yüksekliği azalttım
+                height: 120,
                 width: double.infinity,
                 color: Colors.grey[800],
                 child: const Icon(Icons.broken_image, color: Colors.white),
               ),
             ),
           ),
-          Expanded( // Expanded widget'ı ekledim
+          Expanded(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     movie.title,
@@ -210,15 +317,15 @@ class _FavoriteMovieCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 2),
-                  Expanded( // Açıklama için Expanded
+                  const SizedBox(height: 4),
+                  Expanded(
                     child: Text(
                       movie.description,
                       style: Theme.of(context)
                           .textTheme
                           .bodySmall
-                          ?.copyWith(fontSize: 10), // Font boyutunu küçülttüm
-                      maxLines: 3, // Satır sayısını artırdım
+                          ?.copyWith(fontSize: 10),
+                      maxLines: 3,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
