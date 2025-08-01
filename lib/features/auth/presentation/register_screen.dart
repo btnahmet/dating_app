@@ -77,9 +77,9 @@ class RegisterScreen extends StatelessWidget {
                 onTap: () => context.push('/upload'),
               ),
               const SizedBox(height: 24),
-              Row(
+              const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
+                children: [
                   SocialIcon(icon: Icons.g_mobiledata),
                   SizedBox(width: 16),
                   SocialIcon(icon: Icons.apple),
