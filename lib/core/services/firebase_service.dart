@@ -28,5 +28,5 @@ class FirebaseService {
 
   static dynamic get currentUser => null;
 
-  static Stream<dynamic> get authStateChanges => Stream.empty();
+  static Stream<dynamic> get authStateChanges => const Stream.empty();
 } 
