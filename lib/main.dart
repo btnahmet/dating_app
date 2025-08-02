@@ -120,6 +120,7 @@ import 'features/home/viewmodel/home_view_model.dart';
 import 'routes/app_router.dart';
 
 void main() {
+   WidgetsFlutterBinding.ensureInitialized();
   // Logger başlat (örnek: Crashlytics gibi future eklenecekse buraya)
   LoggerService.init(); // Logger sınıfı içinde static init metodu
 

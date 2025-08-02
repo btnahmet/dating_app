@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 
 class LoggerService {
   static void init() {
-    info('Logger initialized 🚀');
+    info('Logger initialized...');
   }
 
   static String _timestamp() {
