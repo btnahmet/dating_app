@@ -107,6 +107,7 @@
 // }
 import 'dart:io';
 
+import 'package:dating_app/core/services/logger_service.dart';
 import 'package:dating_app/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -123,14 +124,28 @@ class UploadPhotoScreen extends StatefulWidget {
 class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
   XFile? _selectedImage;
 
-  Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final picked = await picker.pickImage(source: ImageSource.gallery);
-    if (picked != null) {
-      setState(() => _selectedImage = picked);
+  // Future<void> _pickImage() async {
+  //   final picker = ImagePicker();
+  //   final picked = await picker.pickImage(source: ImageSource.gallery);
+  //   if (picked != null) {
+  //     setState(() => _selectedImage = picked);
+  //   }
+  // }
+Future<void> _pickImage() async {
+    try {
+      LoggerService.log('Picking image from gallery...');
+      final picker = ImagePicker();
+      final picked = await picker.pickImage(source: ImageSource.gallery);
+      if (picked != null) {
+        setState(() => _selectedImage = picked);
+        LoggerService.log('Image picked: ${picked.path}');
+      } else {
+        LoggerService.log('No image selected.');
+      }
+    } catch (e, s) {
+      LoggerService.error('Image picking failed.', e, s);
     }
   }
-
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
@@ -150,7 +165,10 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
                     backgroundColor: const Color(0xFF1F1F1F),
                     child: IconButton(
                       icon: const Icon(Icons.arrow_back, color: Colors.white),
-                      onPressed: () => Navigator.of(context).pop(),
+                      onPressed: () {
+                        LoggerService.log('Back button pressed.');
+                        Navigator.of(context).pop();
+                      },
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -202,7 +220,11 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
               const Spacer(),
               CustomButton(
                 text: l10n.continueButton,
-                onTap: () => context.go('/home'),
+                // onTap: () => context.go('/home'),
+                 onTap: () {
+                  LoggerService.log('Continue tapped, navigating to /home');
+                  context.go('/home');
+                },
               ),
               const SizedBox(height: 24),
             ],

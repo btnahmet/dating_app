@@ -70,9 +70,9 @@
 //         _emailController.text,
 //         _passwordController.text,
 //       );
-      
+
 //       print('Register başarılı!');
-      
+
 //       if (mounted) {
 //         ScaffoldMessenger.of(context).showSnackBar(
 //           const SnackBar(content: Text('Kayıt başarılı!')),
@@ -238,6 +238,7 @@
 // lib/features/auth/presentation/register_screen.dart
 
 import 'package:dating_app/core/services/api_service.dart';
+import 'package:dating_app/core/services/logger_service.dart';
 import 'package:dating_app/core/services/token_storage_service.dart';
 import 'package:dating_app/widgets/custom_button.dart';
 import 'package:dating_app/widgets/custom_text_field.dart';
@@ -277,6 +278,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _emailController.text.isEmpty ||
         _passwordController.text.isEmpty ||
         _confirmPasswordController.text.isEmpty) {
+      LoggerService.log('Tüm alanlar doldurulmadı');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.fillAllFields)),
       );
@@ -284,6 +286,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
 
     if (_passwordController.text != _confirmPasswordController.text) {
+      LoggerService.log('Şifreler uyuşmuyor');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.passwordsDoNotMatch)),
       );
@@ -291,6 +294,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
 
     if (!_acceptedTerms) {
+       LoggerService.log('Kullanıcı sözleşmesi kabul edilmemiş');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.termsNotAccepted)),
       );
@@ -302,19 +306,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
     });
 
     try {
+      LoggerService.log('Kayıt işlemi başlatılıyor...');
       final response = await _apiService.register(
         _nameController.text,
         _emailController.text,
         _passwordController.text,
       );
-
+      LoggerService.log('Kayıt başarılı!');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(l10n.registrationSuccess)),
         );
         context.go('/upload-photo');
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      LoggerService.error('Kayıt başarısız..', e, stackTrace);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('${l10n.registrationFailed}: $e')),

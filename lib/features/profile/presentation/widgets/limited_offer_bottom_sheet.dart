@@ -247,6 +247,7 @@
 //     );
 //   }
 // } 
+import 'package:dating_app/core/services/logger_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -256,7 +257,7 @@ class LimitedOfferBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-
+     LoggerService.log('LimitedOfferBottomSheet açıldı');
     return Container(
       height: MediaQuery.of(context).size.height * 0.8,
       decoration: const BoxDecoration(
@@ -361,7 +362,11 @@ class LimitedOfferBottomSheet extends StatelessWidget {
               width: double.infinity,
               height: 50,
               child: ElevatedButton(
-                onPressed: () {
+                // onPressed: () {
+                //   Navigator.pop(context);
+                // },
+                 onPressed: () {
+                  LoggerService.log('Jetonlar butonuna tıklandı');
                   Navigator.pop(context);
                 },
                 style: ElevatedButton.styleFrom(
