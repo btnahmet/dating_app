@@ -1,10 +1,11 @@
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import '../model/movie_model.dart';
 import '../viewmodel/home_view_model.dart';
 import '../../../core/services/token_storage_service.dart';
+import 'package:lottie/lottie.dart';
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -51,8 +52,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
     final viewModel = Provider.of<HomeViewModel>(context);
-    
-    print('HomeScreen: build çağrıldı - Film sayısı: ${viewModel.movies.length}, Loading: ${viewModel.isLoading}');
+
+    print(
+        'HomeScreen: build çağrıldı - Film sayısı: ${viewModel.movies.length}, Loading: ${viewModel.isLoading}');
 
     return SafeArea(
       child: Scaffold(
@@ -65,11 +67,29 @@ class _HomeScreenState extends State<HomeScreen> {
           enablePullDown: true,
           child: viewModel.isLoading && viewModel.movies.isEmpty
               ? const Center(child: CircularProgressIndicator())
+              // : viewModel.movies.isEmpty
+              //     ? const Center(
+              //         child: Text(
+              //           'Film bulunamadı',
+              //           style: TextStyle(color: Colors.white),
+              //         ),
+              //       )
               : viewModel.movies.isEmpty
-                  ? const Center(
-                      child: Text(
-                        'Film bulunamadı',
-                        style: TextStyle(color: Colors.white),
+                  ? Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Lottie.asset(
+                            'assets/animations/noData.json',
+                            width: 220,
+                            height: 220,
+                          ),
+                          const SizedBox(height: 12),
+                          const Text(
+                            'Film bulunamadı',
+                            style: TextStyle(color: Colors.white70),
+                          ),
+                        ],
                       ),
                     )
                   : ListView.builder(
@@ -153,33 +173,36 @@ class _MovieCard extends StatelessWidget {
             ),
             IconButton(
               icon: Icon(
-                viewModel.isFavorite(movie.id) 
-                    ? Icons.favorite 
+                viewModel.isFavorite(movie.id)
+                    ? Icons.favorite
                     : Icons.favorite_border,
-                color: viewModel.isFavorite(movie.id) 
-                    ? Colors.red 
-                    : Colors.white,
+                color:
+                    viewModel.isFavorite(movie.id) ? Colors.red : Colors.white,
               ),
               onPressed: () async {
-                print('HomeScreen: Beğeni butonuna tıklandı - Movie ID: ${movie.id}');
+                print(
+                    'HomeScreen: Beğeni butonuna tıklandı - Movie ID: ${movie.id}');
                 print('HomeScreen: Film başlığı: ${movie.title}');
-                print('HomeScreen: Şu anki beğeni durumu: ${viewModel.isFavorite(movie.id)}');
-                
+                print(
+                    'HomeScreen: Şu anki beğeni durumu: ${viewModel.isFavorite(movie.id)}');
+
                 // Token kontrolü
                 final tokenStorage = TokenStorageService();
                 final token = await tokenStorage.getToken();
-                
+
                 if (token == null) {
-                  print('HomeScreen: Token bulunamadı, kullanıcı giriş yapmamış');
+                  print(
+                      'HomeScreen: Token bulunamadı, kullanıcı giriş yapmamış');
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Film beğenmek için önce giriş yapmalısınız'),
+                      content:
+                          Text('Film beğenmek için önce giriş yapmalısınız'),
                       backgroundColor: Colors.red,
                     ),
                   );
                   return;
                 }
-                
+
                 print('HomeScreen: Token mevcut, beğeni işlemi başlatılıyor');
                 viewModel.toggleFavorite(movie.id);
               },
@@ -190,4 +213,3 @@ class _MovieCard extends StatelessWidget {
     );
   }
 }
-

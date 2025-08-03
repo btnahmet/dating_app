@@ -1,382 +1,3 @@
-// import 'package:dating_app/widgets/locale_provider.dart';
-// import 'package:flutter/material.dart';
-// import 'package:lucide_icons/lucide_icons.dart';
-// import 'package:provider/provider.dart';
-// import 'package:go_router/go_router.dart';
-// import '../../home/viewmodel/home_view_model.dart';
-// import '../../home/model/movie_model.dart';
-// import '../../premium/presentation/widgets/limited_offer_bottom_sheet.dart';
-// import '../../../core/services/api_service.dart';
-// import '../../../core/services/token_storage_service.dart';
-// import 'dart:convert'; // Added for json and base64Url
-
-// class ProfileScreen extends StatefulWidget {
-//   const ProfileScreen({super.key});
-
-//   @override
-//   State<ProfileScreen> createState() => _ProfileScreenState();
-// }
-
-// class _ProfileScreenState extends State<ProfileScreen> {
-//   final _apiService = ApiService();
-//   final _tokenStorage = TokenStorageService();
-//   bool _isLoggingOut = false;
-//   String _userName = 'Kullanıcı';
-//   String _userPhotoUrl = '';
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     _loadUserInfo();
-//     // Beğenilen filmleri yükle
-//     Future.microtask(() {
-//       final viewModel = Provider.of<HomeViewModel>(context, listen: false);
-//       viewModel.loadFavoriteMovies();
-//     });
-//   }
-
-//   Future<void> _loadUserInfo() async {
-//     try {
-//       // Token'dan kullanıcı bilgilerini al
-//       final token = await _tokenStorage.getToken();
-//       if (token != null) {
-//         // JWT token'dan kullanıcı bilgilerini decode et
-//         final parts = token.split('.');
-//         if (parts.length == 3) {
-//           final payload = parts[1];
-//           final normalized = base64Url.normalize(payload);
-//           final resp = utf8.decode(base64Url.decode(normalized));
-//           final payloadMap = json.decode(resp);
-
-//           setState(() {
-//             _userName = payloadMap['name'] ?? 'Kullanıcı';
-//             // Fotoğraf URL'i varsa kullan, yoksa boş bırak
-//             _userPhotoUrl = payloadMap['photoUrl'] ?? '';
-//           });
-//         }
-//       }
-//     } catch (e) {
-//       print('Kullanıcı bilgileri yüklenirken hata: $e');
-//     }
-//   }
-
-//   void _showLimitedOffer() {
-//     showModalBottomSheet(
-//       context: context,
-//       isScrollControlled: true,
-//       backgroundColor: Colors.transparent,
-//       builder: (context) => const LimitedOfferBottomSheet(),
-//     );
-//   }
-
-//   void _navigateToUploadPhoto() {
-//     context.push('/upload-photo');
-//   }
-
-//   Future<void> _logout() async {
-//     setState(() {
-//       _isLoggingOut = true;
-//     });
-
-//     try {
-//       await _apiService.logout();
-
-//       if (mounted) {
-//         ScaffoldMessenger.of(context).showSnackBar(
-//           const SnackBar(content: Text('Çıkış yapıldı')),
-//         );
-//         context.go('/login');
-//       }
-//     } catch (e) {
-//       print('Logout hatası: $e');
-//       if (mounted) {
-//         ScaffoldMessenger.of(context).showSnackBar(
-//           SnackBar(content: Text('Çıkış hatası: $e')),
-//         );
-//       }
-//     } finally {
-//       if (mounted) {
-//         setState(() {
-//           _isLoggingOut = false;
-//         });
-//       }
-//     }
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final viewModel = Provider.of<HomeViewModel>(context);
-//     return Scaffold(
-//       backgroundColor: Colors.black,
-//       body: SafeArea(
-//         child: Padding(
-//           padding: const EdgeInsets.symmetric(horizontal: 24),
-//           child: Column(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               const SizedBox(height: 24),
-//               Row(
-//                 children: [
-//                   CircleAvatar(
-//                     backgroundColor: const Color(0xFF1F1F1F),
-//                     child: IconButton(
-//                       icon: _isLoggingOut
-//                           ? const SizedBox(
-//                               width: 20,
-//                               height: 20,
-//                               child: CircularProgressIndicator(
-//                                 strokeWidth: 2,
-//                                 valueColor:
-//                                     AlwaysStoppedAnimation<Color>(Colors.white),
-//                               ),
-//                             )
-//                           : const Icon(Icons.arrow_back, color: Colors.white),
-//                       onPressed: _isLoggingOut ? null : _logout,
-//                     ),
-//                   ),
-//                   const Spacer(),
-//                   Text(
-//                     'Profil Detayı',
-//                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-//                           fontWeight: FontWeight.bold,
-//                         ),
-//                   ),
-//                   const Spacer(),
-//                   Container(
-//                     decoration: BoxDecoration(
-//                       color: Colors.red,
-//                       borderRadius: BorderRadius.circular(24),
-//                     ),
-//                     child: Material(
-//                       color: Colors.transparent,
-//                       child: InkWell(
-//                         onTap: _showLimitedOffer,
-//                         borderRadius: BorderRadius.circular(24),
-//                         child: Padding(
-//                           padding: const EdgeInsets.symmetric(
-//                               horizontal: 16, vertical: 8),
-//                           child: Row(
-//                             mainAxisSize: MainAxisSize.min,
-//                             children: [
-//                               Icon(LucideIcons.gem,
-//                                   size: 16, color: Colors.white),
-//                               const SizedBox(width: 6),
-//                               Text('Sınırlı Teklif',
-//                                   style: TextStyle(color: Colors.white)),
-//                             ],
-//                           ),
-//                         ),
-//                       ),
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//               const SizedBox(height: 24),
-//               Row(
-//                 crossAxisAlignment: CrossAxisAlignment.center,
-//                 children: [
-//                   CircleAvatar(
-//                     radius: 36,
-//                     backgroundColor:
-//                         _userPhotoUrl.isEmpty ? const Color(0xFF1F1F1F) : null,
-//                     backgroundImage: _userPhotoUrl.isNotEmpty
-//                         ? NetworkImage(_userPhotoUrl)
-//                         : null,
-//                     child: _userPhotoUrl.isEmpty
-//                         ? const Icon(Icons.person,
-//                             color: Colors.white, size: 36)
-//                         : null,
-//                   ),
-//                   const SizedBox(width: 16),
-//                   Expanded(
-//                     child: Column(
-//                       crossAxisAlignment: CrossAxisAlignment.start,
-//                       children: [
-//                         Text(
-//                           _userName,
-//                           style:
-//                               Theme.of(context).textTheme.titleMedium?.copyWith(
-//                                     fontWeight: FontWeight.bold,
-//                                   ),
-//                         ),
-//                         const SizedBox(height: 4),
-//                         Text(
-//                           'ID: 245677',
-//                           style: Theme.of(context)
-//                               .textTheme
-//                               .bodySmall
-//                               ?.copyWith(color: Colors.white70),
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-//                   Container(
-//                     decoration: BoxDecoration(
-//                       color: Colors.red,
-//                       borderRadius: BorderRadius.circular(24),
-//                     ),
-//                     child: Material(
-//                       color: Colors.transparent,
-//                       child: InkWell(
-//                         onTap: _navigateToUploadPhoto,
-//                         borderRadius: BorderRadius.circular(24),
-//                         child: Padding(
-//                           padding: const EdgeInsets.symmetric(
-//                               horizontal: 16, vertical: 8),
-//                           child: Text('Fotoğraf Ekle',
-//                               style: TextStyle(color: Colors.white)),
-//                         ),
-//                       ),
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//               const SizedBox(height: 24),
-//               // Text(
-//               //   'Beğendiğim Filmler',
-//               //   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-//               //         fontWeight: FontWeight.bold,
-//               //       ),
-//               // ),
-//               Row(
-//                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                 children: [
-//                   Text(
-//                     'Beğendiğim Filmler',
-//                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-//                           fontWeight: FontWeight.bold,
-//                         ),
-//                   ),
-//                   PopupMenuButton<String>(
-//                     icon: const Icon(Icons.language,
-//                         color: Colors.white, size: 20),
-//                     onSelected: (value) {
-//                       if (value == 'tr') {
-//                          context.read<LocaleProvider>().setLocale(Locale('tr'));
-//                       } else if (value == 'en') {
-//                          context.read<LocaleProvider>().setLocale(Locale('en'));
-//                       }
-//                     },
-//                     itemBuilder: (context) => [
-//                       const PopupMenuItem(value: 'tr', child: Text('Türkçe')),
-//                       const PopupMenuItem(value: 'en', child: Text('English')),
-//                     ],
-//                   ),
-//                 ],
-//               ),
-
-//               const SizedBox(height: 16),
-//               Expanded(
-//                 child: Consumer<HomeViewModel>(
-//                   builder: (context, viewModel, child) {
-//                     if (viewModel.isLoadingFavorites) {
-//                       return const Center(child: CircularProgressIndicator());
-//                     }
-
-//                     if (viewModel.favoriteMovies.isEmpty) {
-//                       return const Center(
-//                         child: Text(
-//                           'Henüz beğendiğiniz film yok',
-//                           style: TextStyle(color: Colors.white70),
-//                         ),
-//                       );
-//                     }
-
-//                     return GridView.builder(
-//                       itemCount: viewModel.favoriteMovies.length,
-//                       gridDelegate:
-//                           const SliverGridDelegateWithFixedCrossAxisCount(
-//                         crossAxisCount: 2,
-//                         crossAxisSpacing: 16,
-//                         mainAxisSpacing: 16,
-//                         mainAxisExtent: 200,
-//                       ),
-//                       itemBuilder: (context, index) {
-//                         final movie = viewModel.favoriteMovies[index];
-//                         return _FavoriteMovieCard(movie: movie);
-//                       },
-//                     );
-//                   },
-//                 ),
-//               )
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-// class _FavoriteMovieCard extends StatelessWidget {
-//   final MovieModel movie;
-
-//   const _FavoriteMovieCard({required this.movie});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       decoration: BoxDecoration(
-//         color: const Color(0xFF1F1F1F),
-//         borderRadius: BorderRadius.circular(12),
-//       ),
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         mainAxisSize: MainAxisSize.min,
-//         children: [
-//           ClipRRect(
-//             borderRadius: const BorderRadius.only(
-//               topLeft: Radius.circular(12),
-//               topRight: Radius.circular(12),
-//             ),
-//             child: Image.network(
-//               movie.posterUrl,
-//               height: 120,
-//               width: double.infinity,
-//               fit: BoxFit.cover,
-//               errorBuilder: (_, __, ___) => Container(
-//                 height: 120,
-//                 width: double.infinity,
-//                 color: Colors.grey[800],
-//                 child: const Icon(Icons.broken_image, color: Colors.white),
-//               ),
-//             ),
-//           ),
-//           Expanded(
-//             child: Padding(
-//               padding: const EdgeInsets.all(8.0),
-//               child: Column(
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   Text(
-//                     movie.title,
-//                     style: Theme.of(context)
-//                         .textTheme
-//                         .bodySmall
-//                         ?.copyWith(fontWeight: FontWeight.bold),
-//                     maxLines: 1,
-//                     overflow: TextOverflow.ellipsis,
-//                   ),
-//                   const SizedBox(height: 4),
-//                   Expanded(
-//                     child: Text(
-//                       movie.description,
-//                       style: Theme.of(context)
-//                           .textTheme
-//                           .bodySmall
-//                           ?.copyWith(fontSize: 10),
-//                       maxLines: 3,
-//                       overflow: TextOverflow.ellipsis,
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           )
-//         ],
-//       ),
-//     );
-//   }
-// }
 import 'package:dating_app/widgets/locale_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -389,6 +10,8 @@ import '../../premium/presentation/widgets/limited_offer_bottom_sheet.dart';
 import '../../../core/services/api_service.dart';
 import '../../../core/services/token_storage_service.dart';
 import 'dart:convert';
+import 'package:lottie/lottie.dart';
+
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -467,7 +90,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       print('Logout hatası: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("${AppLocalizations.of(context)!.logoutFailed}: $e")),
+          SnackBar(
+              content:
+                  Text("${AppLocalizations.of(context)!.logoutFailed}: $e")),
         );
       }
     } finally {
@@ -623,9 +248,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         color: Colors.white, size: 20),
                     onSelected: (value) {
                       if (value == 'tr') {
-                        context.read<LocaleProvider>().setLocale(const Locale('tr'));
+                        context
+                            .read<LocaleProvider>()
+                            .setLocale(const Locale('tr'));
                       } else if (value == 'en') {
-                        context.read<LocaleProvider>().setLocale(const Locale('en'));
+                        context
+                            .read<LocaleProvider>()
+                            .setLocale(const Locale('en'));
                       }
                     },
                     itemBuilder: (context) => [
@@ -643,11 +272,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       return const Center(child: CircularProgressIndicator());
                     }
 
+                    // if (viewModel.favoriteMovies.isEmpty) {
+                    //   return Center(
+                    //     child: Text(
+                    //       l10n.noFavoriteMovies,
+                    //       style: const TextStyle(color: Colors.white70),
+                    //     ),
+                    //   );
+                    // }
                     if (viewModel.favoriteMovies.isEmpty) {
                       return Center(
-                        child: Text(
-                          l10n.noFavoriteMovies,
-                          style: const TextStyle(color: Colors.white70),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Lottie.asset(
+                              'assets/animations/movieAnimation.json',
+                              width: 200,
+                              height: 200,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              l10n.noFavoriteMovies,
+                              style: const TextStyle(color: Colors.white70),
+                            ),
+                          ],
                         ),
                       );
                     }
