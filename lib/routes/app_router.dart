@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 // Servis
 import 'package:dating_app/core/services/navigation_service.dart';
@@ -14,6 +15,10 @@ class AppRouter {
   static final GoRouter router = GoRouter(
     navigatorKey: NavigationService.navigatorKey,
     initialLocation: '/login',
+    // Firebase Analytics observer'ı ekle
+    observers: [
+      FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
+    ],
     routes: [
       GoRoute(
         path: '/login',

@@ -7,6 +7,11 @@ import 'package:dio/dio.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:dating_app/l10n/app_localizations.dart';
 
+// Firebase
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'firebase_options.dart';
+
 // Core
 import 'core/theme/app_theme.dart';
 import 'core/services/logger_service.dart';
@@ -23,10 +28,19 @@ import 'features/home/viewmodel/home_view_model.dart';
 // Routes
 import 'routes/app_router.dart';
 
-void main() {
-   WidgetsFlutterBinding.ensureInitialized();
-  // Logger başlat (örnek: Crashlytics gibi future eklenecekse buraya)
-  LoggerService.init(); // Logger sınıfı içinde static init metodu
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Firebase'i initialize et
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  
+  // Crashlytics'i yapılandır
+  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+  
+  // Logger başlat
+  LoggerService.init();
 
   runApp(const MyApp());
 }

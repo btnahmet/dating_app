@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dating_app/l10n/app_localizations.dart';
+import 'package:dating_app/core/services/analytics_service.dart';
 
 class LimitedOfferBottomSheet extends StatelessWidget {
   const LimitedOfferBottomSheet({super.key});
@@ -7,6 +8,10 @@ class LimitedOfferBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    
+    // Analytics event'i gönder
+    AnalyticsService.logPremiumOfferView();
+    
     return Container(
       height: MediaQuery.of(context).size.height * 0.8,
       decoration: const BoxDecoration(
@@ -186,31 +191,39 @@ class LimitedOfferBottomSheet extends StatelessWidget {
         ),
         borderRadius: BorderRadius.circular(width * 0.02),
       ),
-      child: Stack(
-        children: [
-          // Percentage Badge
-          Positioned(
-            top: width * 0.01,
-            right: width * 0.01,
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: width * 0.01, vertical: height * 0.002),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(width * 0.015),
-              ),
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  percentage,
-                  style: TextStyle(
-                    color: color,
-                    fontSize: width * 0.02,
-                    fontWeight: FontWeight.bold,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            // Analytics event'i gönder
+            AnalyticsService.logPremiumOfferClick();
+          },
+          borderRadius: BorderRadius.circular(width * 0.02),
+          child: Stack(
+            children: [
+              // Percentage Badge
+              Positioned(
+                top: width * 0.01,
+                right: width * 0.01,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: width * 0.01, vertical: height * 0.002),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(width * 0.015),
+                  ),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      percentage,
+                      style: TextStyle(
+                        color: color,
+                        fontSize: width * 0.02,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ),
           
           // Content
           Expanded(
@@ -278,6 +291,8 @@ class LimitedOfferBottomSheet extends StatelessWidget {
             ),
           ),
         ],
+      ),
+        ),
       ),
     );
   }

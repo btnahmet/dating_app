@@ -1,5 +1,6 @@
 import 'package:dating_app/core/services/api_service.dart';
 import 'package:dating_app/core/services/logger_service.dart';
+import 'package:dating_app/core/services/analytics_service.dart';
 import 'package:dating_app/widgets/custom_button.dart';
 import 'package:dating_app/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
@@ -73,6 +74,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _passwordController.text,
       );
       LoggerService.log('Kayıt başarılı!');
+      
+      // Analytics event'i gönder
+      await AnalyticsService.logRegister();
+      await AnalyticsService.setUserProperties(
+        userEmail: _emailController.text,
+      );
+      
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(l10n.registrationSuccess)),

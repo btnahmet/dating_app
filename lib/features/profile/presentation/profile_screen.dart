@@ -10,6 +10,7 @@ import '../../premium/presentation/widgets/limited_offer_bottom_sheet.dart';
 import '../../../core/services/api_service.dart';
 import '../../../core/services/token_storage_service.dart';
 import '../../../core/services/logger_service.dart';
+import '../../../core/services/analytics_service.dart';
 import 'dart:convert';
 import 'package:lottie/lottie.dart';
 
@@ -32,12 +33,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
     _loadUserInfo();
+    _logProfileView();
     Future.microtask(() {
       if (mounted) {
         final viewModel = Provider.of<HomeViewModel>(context, listen: false);
         viewModel.loadFavoriteMovies();
       }
     });
+  }
+
+  // Analytics event'i gönder
+  Future<void> _logProfileView() async {
+    await AnalyticsService.logProfileView();
   }
 
   Future<void> _loadUserInfo() async {
@@ -133,6 +140,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _showLimitedOffer() {
+    // Analytics event'i gönder
+    AnalyticsService.logPremiumOfferView();
+    
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -158,6 +168,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     try {
       await _apiService.logout();
+      
+      // Analytics event'i gönder
+      await AnalyticsService.logLogout();
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -387,10 +400,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           context
                               .read<LocaleProvider>()
                               .setLocale(const Locale('tr'));
+                          AnalyticsService.logLanguageChange('tr');
                         } else if (value == 'en') {
                           context
                               .read<LocaleProvider>()
                               .setLocale(const Locale('en'));
+                          AnalyticsService.logLanguageChange('en');
                         }
                       },
                       itemBuilder: (context) => [

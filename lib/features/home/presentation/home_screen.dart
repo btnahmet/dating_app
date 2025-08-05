@@ -5,6 +5,7 @@ import '../model/movie_model.dart';
 import '../viewmodel/home_view_model.dart';
 import '../../../core/services/token_storage_service.dart';
 import '../../../core/services/logger_service.dart';
+import '../../../core/services/analytics_service.dart';
 import 'package:lottie/lottie.dart';
 
 
@@ -23,6 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     LoggerService.log('HomeScreen: initState çağrıldı');
+    _logHomeView();
     Future.microtask(() {
       if (mounted) {
         final viewModel = Provider.of<HomeViewModel>(context, listen: false);
@@ -41,6 +43,19 @@ class _HomeScreenState extends State<HomeScreen> {
         viewModel.loadMore();
       }
     });
+  }
+
+  // Analytics event'i gönder
+  Future<void> _logHomeView() async {
+    await AnalyticsService.logHomeView();
+    
+    // Manuel test event'i
+    await AnalyticsService.logCustomEvent('test_event', {
+      'test_param': 'test_value',
+      'timestamp': DateTime.now().toString(),
+    });
+    
+    print('🔥 Analytics test event gönderildi!');
   }
 
   @override
@@ -70,13 +85,6 @@ class _HomeScreenState extends State<HomeScreen> {
           enablePullDown: true,
           child: viewModel.isLoading && viewModel.movies.isEmpty
               ? const Center(child: CircularProgressIndicator())
-              // : viewModel.movies.isEmpty
-              //     ? const Center(
-              //         child: Text(
-              //           'Film bulunamadı',
-              //           style: TextStyle(color: Colors.white),
-              //         ),
-              //       )
               : viewModel.movies.isEmpty
                   ? Center(
                       child: Column(
@@ -193,7 +201,7 @@ class _MovieCard extends StatelessWidget {
                 final tokenStorage = TokenStorageService();
                 final token = await tokenStorage.getToken();
 
-                                                  if (token == null) {
+                if (token == null) {
                   LoggerService.log(
                       'HomeScreen: Token bulunamadı, kullanıcı giriş yapmamış');
                   WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -209,6 +217,14 @@ class _MovieCard extends StatelessWidget {
                 }
 
                 LoggerService.log('HomeScreen: Token mevcut, beğeni işlemi başlatılıyor');
+                
+                // Analytics event'i gönder
+                if (viewModel.isFavorite(movie.id)) {
+                  await AnalyticsService.logMovieUnfavorite();
+                } else {
+                  await AnalyticsService.logMovieFavorite();
+                }
+                
                 viewModel.toggleFavorite(movie.id);
               },
             ),

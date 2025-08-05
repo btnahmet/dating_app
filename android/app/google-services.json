@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "344409261247",
+    "project_id": "sinflixapp-3fb29",
+    "storage_bucket": "sinflixapp-3fb29.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:344409261247:android:e91efaff6ebda537b3320a",
+        "android_client_info": {
+          "package_name": "com.example.dating_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCk8vlBf6MgUx-s-ERV4xVnDddnzP_2ohs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

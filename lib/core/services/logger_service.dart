@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 class LoggerService {
   static void init() {
@@ -45,6 +46,19 @@ class LoggerService {
       print('[${_timestamp()}] [ERROR] $message');
       if (error != null) print('Details: $error');
       if (stackTrace != null) print(stackTrace);
+    }
+    
+    // Crashlytics'e gönder
+    try {
+      FirebaseCrashlytics.instance.log('[$message]');
+      if (error != null) {
+        FirebaseCrashlytics.instance.recordError(error, stackTrace, reason: message);
+      }
+    } catch (e) {
+      // Crashlytics hatası durumunda sadece print
+      if (kDebugMode) {
+        print('[${_timestamp()}] [CRASHLYTICS_ERROR] $e');
+      }
     }
   }
 }

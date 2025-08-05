@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dating_app/core/services/logger_service.dart';
 import 'package:dating_app/core/services/api_service.dart';
+import 'package:dating_app/core/services/analytics_service.dart';
 import 'package:dating_app/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -47,6 +48,9 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
         // Doğrudan API service kullanarak fotoğraf yükle
         final apiService = ApiService();
         await apiService.uploadPhoto(File(_selectedImage!.path));
+        
+        // Analytics event'i gönder
+        await AnalyticsService.logPhotoUpload();
         
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(

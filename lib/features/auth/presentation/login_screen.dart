@@ -1,5 +1,6 @@
 import 'package:dating_app/core/services/api_service.dart';
 import 'package:dating_app/core/services/token_storage_service.dart';
+import 'package:dating_app/core/services/analytics_service.dart';
 import 'package:dating_app/widgets/custom_button.dart';
 import 'package:dating_app/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
@@ -52,6 +53,13 @@ class _LoginScreenState extends State<LoginScreen> {
       if (data['token'] != null) {
         final token = data['token'];
         await _tokenStorage.saveToken(token);
+
+        // Analytics event'i gönder
+        await AnalyticsService.logLogin();
+        await AnalyticsService.setUserProperties(
+          userId: data['id']?.toString(),
+          userEmail: _emailController.text,
+        );
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
