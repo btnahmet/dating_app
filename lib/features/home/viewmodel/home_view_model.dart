@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../data/movie_service.dart';
 import '../model/movie_model.dart';
+import '../../../core/services/logger_service.dart';
 
 class HomeViewModel extends ChangeNotifier {
   final MovieService _movieService = MovieService();
@@ -12,45 +13,43 @@ class HomeViewModel extends ChangeNotifier {
   int currentPage = 1;
 
   Future<void> loadMovies() async {
-    print('HomeViewModel: Film yükleme başlatılıyor...');
+    LoggerService.log('HomeViewModel: Film yükleme başlatılıyor...');
     isLoading = true;
     notifyListeners();
 
     try {
       final newMovies = await _movieService.fetchMovies(page: currentPage);
-      print('HomeViewModel: ${newMovies.length} film alındı');
+      LoggerService.log('HomeViewModel: ${newMovies.length} film alındı');
       movies.addAll(newMovies);
       currentPage++;
-      print('HomeViewModel: Toplam film sayısı: ${movies.length}');
+      LoggerService.log('HomeViewModel: Toplam film sayısı: ${movies.length}');
     } catch (e) {
-      print('HomeViewModel: Film yükleme hatası: $e');
-      debugPrint('Error fetching movies: $e');
+      LoggerService.error('HomeViewModel: Film yükleme hatası', e);
     }
 
     isLoading = false;
     notifyListeners();
-    print('HomeViewModel: Film yükleme tamamlandı');
+    LoggerService.log('HomeViewModel: Film yükleme tamamlandı');
   }
 
   Future<void> refreshMovies() async {
-    print('HomeViewModel: Film yenileme başlatılıyor...');
+    LoggerService.log('HomeViewModel: Film yenileme başlatılıyor...');
     isLoading = true;
     currentPage = 1;
     notifyListeners();
 
     try {
       final newMovies = await _movieService.fetchMovies(page: currentPage);
-      print('HomeViewModel: Yenileme - ${newMovies.length} film alındı');
+      LoggerService.log('HomeViewModel: Yenileme - ${newMovies.length} film alındı');
       movies = newMovies;
       currentPage++;
     } catch (e) {
-      print('HomeViewModel: Film yenileme hatası: $e');
-      debugPrint('Error refreshing movies: $e');
+      LoggerService.error('HomeViewModel: Film yenileme hatası', e);
     }
 
     isLoading = false;
     notifyListeners();
-    print('HomeViewModel: Film yenileme tamamlandı');
+    LoggerService.log('HomeViewModel: Film yenileme tamamlandı');
   }
 
   Future<void> loadMore() async {
@@ -62,13 +61,13 @@ class HomeViewModel extends ChangeNotifier {
   // Film beğenme/beğenmeme
   Future<void> toggleFavorite(String movieId) async {
     try {
-      print('HomeViewModel: Film beğeni işlemi başlatılıyor... Movie ID: $movieId');
-      print('HomeViewModel: Mevcut beğenilen film sayısı: ${favoriteMovies.length}');
+      LoggerService.log('HomeViewModel: Film beğeni işlemi başlatılıyor... Movie ID: $movieId');
+      LoggerService.log('HomeViewModel: Mevcut beğenilen film sayısı: ${favoriteMovies.length}');
       
       final success = await _movieService.toggleFavorite(movieId);
       
       if (success) {
-        print('HomeViewModel: Film beğeni işlemi başarılı');
+        LoggerService.log('HomeViewModel: Film beğeni işlemi başarılı');
         
         // UI'ı hemen güncelle
         final movie = movies.firstWhere((m) => m.id == movieId, orElse: () => MovieModel(id: '', title: '', description: '', posterUrl: ''));
@@ -76,46 +75,44 @@ class HomeViewModel extends ChangeNotifier {
           if (isFavorite(movieId)) {
             // Beğeniyi kaldır
             favoriteMovies.removeWhere((m) => m.id == movieId);
-            print('HomeViewModel: Film beğenilerden kaldırıldı');
+            LoggerService.log('HomeViewModel: Film beğenilerden kaldırıldı');
           } else {
             // Beğeniye ekle
             favoriteMovies.add(movie);
-            print('HomeViewModel: Film beğenilere eklendi');
+            LoggerService.log('HomeViewModel: Film beğenilere eklendi');
           }
           notifyListeners();
         }
         
         // Beğenilen filmleri yenile
         await loadFavoriteMovies();
-        print('HomeViewModel: Beğenilen filmler yenilendi');
+        LoggerService.log('HomeViewModel: Beğenilen filmler yenilendi');
       } else {
-        print('HomeViewModel: Film beğeni işlemi başarısız');
+        LoggerService.log('HomeViewModel: Film beğeni işlemi başarısız');
       }
     } catch (e) {
-      print('HomeViewModel: Film beğeni hatası: $e');
-      // Hata durumunda kullanıcıya bilgi ver
-      debugPrint('Film beğeni hatası: $e');
+      LoggerService.error('HomeViewModel: Film beğeni hatası', e);
     }
   }
 
   // Beğenilen filmleri yükle
   Future<void> loadFavoriteMovies() async {
-    print('HomeViewModel: Beğenilen filmler yükleniyor...');
+    LoggerService.log('HomeViewModel: Beğenilen filmler yükleniyor...');
     isLoadingFavorites = true;
     notifyListeners();
 
     try {
       final favorites = await _movieService.fetchFavoriteMovies();
-      print('HomeViewModel: ${favorites.length} beğenilen film alındı');
+      LoggerService.log('HomeViewModel: ${favorites.length} beğenilen film alındı');
       favoriteMovies = favorites;
     } catch (e) {
-      print('HomeViewModel: Beğenilen filmler yükleme hatası: $e');
+      LoggerService.error('HomeViewModel: Beğenilen filmler yükleme hatası', e);
       favoriteMovies = [];
     }
 
     isLoadingFavorites = false;
     notifyListeners();
-    print('HomeViewModel: Beğenilen filmler yükleme tamamlandı');
+    LoggerService.log('HomeViewModel: Beğenilen filmler yükleme tamamlandı');
   }
 
   // Film beğeniliyor mu kontrol et

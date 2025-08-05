@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:dating_app/l10n/app_localizations.dart';
 
 class LimitedOfferBottomSheet extends StatelessWidget {
   const LimitedOfferBottomSheet({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       height: MediaQuery.of(context).size.height * 0.8,
       decoration: const BoxDecoration(
@@ -26,7 +28,7 @@ class LimitedOfferBottomSheet extends StatelessWidget {
             child: Column(
               children: [
                 Text(
-                  'Sınırlı Teklif',
+                  l10n.limitedOffer,
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -34,7 +36,7 @@ class LimitedOfferBottomSheet extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Jeton paketin\'ni seçerek bonus kazanın ve yeni bölümlerin kilidini açın!',
+                  l10n.limitedOfferDescription,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Colors.white70,
@@ -46,12 +48,12 @@ class LimitedOfferBottomSheet extends StatelessWidget {
           
           // Bonuses Section
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Alacağınız Bonuslar',
+                  l10n.yourBonuses,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -59,12 +61,11 @@ class LimitedOfferBottomSheet extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _buildBonusItem(Icons.diamond, 'Premium Hesap'),
-                    _buildBonusItem(Icons.favorite, 'Daha Fazla Eşleşme'),
-                    _buildBonusItem(Icons.trending_up, 'Öne Çıkarma'),
-                    _buildBonusItem(Icons.thumb_up, 'Daha Fazla Beğeni'),
+                    Expanded(child: _buildBonusItem(context, Icons.diamond, l10n.premiumAccount)),
+                    Expanded(child: _buildBonusItem(context, Icons.favorite, l10n.moreMatches)),
+                    Expanded(child: _buildBonusItem(context, Icons.trending_up, l10n.highlight)),
+                    Expanded(child: _buildBonusItem(context, Icons.thumb_up, l10n.moreLikes)),
                   ],
                 ),
               ],
@@ -75,12 +76,12 @@ class LimitedOfferBottomSheet extends StatelessWidget {
           
           // Token Packages Section
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Kilidi açmak için bir jeton paketi seçin',
+                  l10n.selectTokenPackage,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -89,11 +90,9 @@ class LimitedOfferBottomSheet extends StatelessWidget {
                 const SizedBox(height: 16),
                 Row(
                   children: [
-                    Expanded(child: _buildTokenPackage('200', '330', '+10%', '₺99,99', Colors.red)),
-                    const SizedBox(width: 12),
-                    Expanded(child: _buildTokenPackage('2.000', '3.375', '+70%', '₺799,99', Colors.purple)),
-                    const SizedBox(width: 12),
-                    Expanded(child: _buildTokenPackage('1.000', '1.350', '+35%', '₺399,99', Colors.red)),
+                    Expanded(child: _buildTokenPackage(context, '200', '330', '+10%', '₺99,99', Colors.red, l10n)),
+                    Expanded(child: _buildTokenPackage(context, '2.000', '3.375', '+70%', '₺799,99', Colors.purple, l10n)),
+                    Expanded(child: _buildTokenPackage(context, '1.000', '1.350', '+35%', '₺399,99', Colors.red, l10n)),
                   ],
                 ),
               ],
@@ -120,7 +119,7 @@ class LimitedOfferBottomSheet extends StatelessWidget {
                   ),
                 ),
                 child: Text(
-                  'Tüm Jetonları Gör',
+                  l10n.seeAllTokens,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -134,112 +133,148 @@ class LimitedOfferBottomSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildBonusItem(IconData icon, String title) {
-    return Column(
-      children: [
-        Container(
-          width: 50,
-          height: 50,
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Colors.pink, Colors.red],
+  Widget _buildBonusItem(BuildContext context, IconData icon, String title) {
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
+    
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: width * 0.005),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: width * 0.1,
+            height: width * 0.1,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Colors.pink, Colors.red],
+              ),
+              borderRadius: BorderRadius.circular(width * 0.04),
+              border: Border.all(color: Colors.white, width: 1),
             ),
-            borderRadius: BorderRadius.circular(25),
-            border: Border.all(color: Colors.white, width: 2),
+            child: Icon(icon, color: Colors.white, size: width * 0.04),
           ),
-          child: Icon(icon, color: Colors.white, size: 24),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          title,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 10,
-            fontWeight: FontWeight.w500,
+          SizedBox(height: height * 0.005),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              title,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: width * 0.03,
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
           ),
-          textAlign: TextAlign.center,
-        ),
-      ],
+        ],
+      ),
     );
   }
 
-  Widget _buildTokenPackage(String base, String bonus, String percentage, String price, Color color) {
+  Widget _buildTokenPackage(BuildContext context, String base, String bonus, String percentage, String price, Color color, AppLocalizations l10n) {
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
+    
     return Container(
-      height: 120,
+      margin: EdgeInsets.symmetric(horizontal: width * 0.005),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [color, color.withOpacity(0.7)],
+          colors: [color, color.withValues(alpha: 0.7)],
         ),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(width * 0.02),
       ),
       child: Stack(
         children: [
           // Percentage Badge
           Positioned(
-            top: 8,
-            right: 8,
+            top: width * 0.02,
+            right: width * 0.01,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              padding: EdgeInsets.symmetric(horizontal: width * 0.01, vertical: height * 0.002),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(width * 0.015),
               ),
-              child: Text(
-                percentage,
-                style: TextStyle(
-                  color: color,
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  percentage,
+                  style: TextStyle(
+                    color: color,
+                    fontSize: width * 0.03,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
           ),
           
           // Content
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  base,
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 12,
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.all(width * 0.03),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      base,
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: width * 0.04,
+                      ),
+                    ),
                   ),
-                ),
-                Text(
-                  bonus,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      bonus,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: width * 0.035,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
-                ),
-                const Text(
-                  'Jeton',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 10,
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      l10n.token,
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: width * 0.025,
+                      ),
+                    ),
                   ),
-                ),
-                const Spacer(),
-                Text(
-                  price,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
+                  SizedBox(height: height * 0.01),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      price,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: width * 0.03,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
-                ),
-                const Text(
-                  'Başına haftalık',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 8,
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      l10n.perWeek,
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: width * 0.02,
+                      ),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],

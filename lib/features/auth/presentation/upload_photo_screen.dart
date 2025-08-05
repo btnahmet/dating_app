@@ -5,7 +5,7 @@ import 'package:dating_app/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:dating_app/l10n/app_localizations.dart';
 
 class UploadPhotoScreen extends StatefulWidget {
   const UploadPhotoScreen({super.key});
@@ -41,32 +41,34 @@ Future<void> _pickImage() async {
   }
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size.height;
     final l10n = AppLocalizations.of(context)!;
+    final height = MediaQuery.of(context).size.height;
+    final width = MediaQuery.of(context).size.width;
 
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+          padding: EdgeInsets.symmetric(horizontal: width * 0.06),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 24),
+              SizedBox(height: height * 0.03),
               Row(
                 children: [
                   CircleAvatar(
+                    radius: width * 0.06,
                     backgroundColor: const Color(0xFF1F1F1F),
                     child: IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.white),
+                      icon: Icon(Icons.arrow_back, color: Colors.white, size: width * 0.06),
                       onPressed: () {
                         LoggerService.log('Back button pressed.');
                         Navigator.of(context).pop();
                       },
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: width * 0.03),
                   Transform.translate(
-                    offset: const Offset(56, 0),
+                    offset: Offset(width * 0.14, 0),
                     child: Text(
                       l10n.profileDetails,
                       style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -76,33 +78,33 @@ Future<void> _pickImage() async {
                   ),
                 ],
               ),
-              const SizedBox(height: 32),
+              SizedBox(height: height * 0.04),
               Text(
                 l10n.uploadPhotos,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: height * 0.01),
               Text(
                 "Resources out incentivize relaxation.",
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
-              const SizedBox(height: 32),
+              SizedBox(height: height * 0.04),
               GestureDetector(
                 onTap: _pickImage,
                 child: Container(
-                  width: 120,
-                  height: 120,
+                  width: width * 0.3,
+                  height: width * 0.3,
                   decoration: BoxDecoration(
                     color: const Color(0xFF1F1F1F),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(width * 0.03),
                   ),
                   child: _selectedImage == null
-                      ? const Icon(Icons.add, size: 40, color: Colors.white)
+                      ? Icon(Icons.add, size: width * 0.1, color: Colors.white)
                       : ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(width * 0.03),
                           child: Image.file(
                             File(_selectedImage!.path),
                             fit: BoxFit.cover,
@@ -119,7 +121,7 @@ Future<void> _pickImage() async {
                   context.go('/home');
                 },
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: height * 0.03),
             ],
           ),
         ),

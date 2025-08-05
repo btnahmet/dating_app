@@ -29,7 +29,7 @@ class _MainLayoutState extends State<MainLayout> {
             topRight: Radius.circular(24),
           ),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           children: [
             Expanded(
@@ -40,7 +40,7 @@ class _MainLayoutState extends State<MainLayout> {
                 onTap: () => setState(() => _currentIndex = 0),
               ),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 8),
             Expanded(
               child: _NavItem(
                 icon: Icons.person_outline,
@@ -75,7 +75,7 @@ class _NavItem extends StatelessWidget {
       onTap: onTap,
       child: Container(
         height: 48,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
           color: selected ? Colors.white : const Color(0xFF1F1F1F),
           borderRadius: BorderRadius.circular(24),
@@ -88,12 +88,15 @@ class _NavItem extends StatelessWidget {
               icon,
               color: selected ? Colors.black : Colors.white,
             ),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: TextStyle(
-                color: selected ? Colors.black : Colors.white,
-                fontWeight: FontWeight.w500,
+            const SizedBox(width: 4),
+            Flexible(
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: selected ? Colors.black : Colors.white,
+                  fontWeight: FontWeight.w500,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],

@@ -1,6 +1,6 @@
 import 'package:dating_app/core/services/logger_service.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:dating_app/l10n/app_localizations.dart';
 
 class LimitedOfferBottomSheet extends StatelessWidget {
   const LimitedOfferBottomSheet({super.key});
@@ -8,245 +8,358 @@ class LimitedOfferBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-     LoggerService.log('LimitedOfferBottomSheet açıldı');
+    final height = MediaQuery.of(context).size.height;
+    final width = MediaQuery.of(context).size.width;
+
+    LoggerService.log('LimitedOfferBottomSheet açıldı');
     return Container(
-      height: MediaQuery.of(context).size.height * 0.8,
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
+      height: height * 0.8,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [Color(0xFF8B0000), Color(0xFF000000)],
         ),
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(20),
-          topRight: Radius.circular(20),
+          topLeft: Radius.circular(width * 0.05),
+          topRight: Radius.circular(width * 0.05),
         ),
       ),
       child: Column(
         children: [
           // Header
-          Container(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              children: [
-                Text(
-                  l10n.limitedOffer,
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+          Expanded(
+            flex: 2,
+            child: Container(
+              padding: EdgeInsets.all(width * 0.03),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        l10n.limitedOffer,
+                                                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                               color: Colors.white,
+                               fontWeight: FontWeight.bold,
+                               fontSize: width * 0.03,
+                             ),
+                        textAlign: TextAlign.center,
                       ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  l10n.limitedOfferDescription,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.white70,
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        l10n.limitedOfferDescription,
+                        textAlign: TextAlign.center,
+                                                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                               color: Colors.white70,
+                               fontSize: width * 0.018,
+                             ),
+                        maxLines: 2,
                       ),
-                ),
-              ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
 
-          // Bonuses Section
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.yourBonuses,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildBonusItem(Icons.diamond, l10n.premiumAccount),
-                    _buildBonusItem(Icons.favorite, l10n.moreMatches),
-                    _buildBonusItem(Icons.trending_up, l10n.highlight),
-                    _buildBonusItem(Icons.thumb_up, l10n.moreLikes),
-                  ],
-                ),
-              ],
+                    // Bonuses Section
+          Expanded(
+            flex: 2,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: width * 0.03),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                                             child: Text(
+                         l10n.yourBonuses,
+                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                               color: Colors.white,
+                               fontWeight: FontWeight.bold,
+                               fontSize: width * 0.025,
+                             ),
+                       ),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 3,
+                    child: Row(
+                      children: [
+                        _buildBonusItem(
+                            context, Icons.diamond, l10n.premiumAccount),
+                        _buildBonusItem(
+                            context, Icons.favorite, l10n.moreMatches),
+                        _buildBonusItem(
+                            context, Icons.trending_up, l10n.highlight),
+                        _buildBonusItem(context, Icons.thumb_up, l10n.moreLikes),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
 
-          const SizedBox(height: 30),
+          SizedBox(height: height * 0.04),
 
-          // Token Packages Section
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.selectTokenPackage,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(child: _buildTokenPackage('200', '330', '+10%', '₺99,99', Colors.red, l10n)),
-                    const SizedBox(width: 12),
-                    Expanded(child: _buildTokenPackage('2.000', '3.375', '+70%', '₺799,99', Colors.purple, l10n)),
-                    const SizedBox(width: 12),
-                    Expanded(child: _buildTokenPackage('1.000', '1.350', '+35%', '₺399,99', Colors.red, l10n)),
-                  ],
-                ),
-              ],
+                    // Token Packages Section
+          Expanded(
+            flex: 3,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: width * 0.03),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                                             child: Text(
+                         l10n.selectTokenPackage,
+                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                               color: Colors.white,
+                               fontWeight: FontWeight.bold,
+                               fontSize: width * 0.025,
+                             ),
+                       ),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 4,
+                    child: Row(
+                      children: [
+                        _buildTokenPackage(context, '200', '330', '+10%',
+                            '₺99,99', Colors.red, l10n),
+                        _buildTokenPackage(context, '2.000', '3.375',
+                            '+70%', '₺799,99', Colors.purple, l10n),
+                        _buildTokenPackage(context, '1.000', '1.350',
+                            '+35%', '₺399,99', Colors.red, l10n),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
 
           const Spacer(),
-
+          
           // Call to Action Button
-          Container(
-            padding: const EdgeInsets.all(20),
-            child: SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                // onPressed: () {
-                //   Navigator.pop(context);
-                // },
-                 onPressed: () {
-                  LoggerService.log('Jetonlar butonuna tıklandı');
-                  Navigator.pop(context);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                ),
-                child: Text(
-                  l10n.seeAllTokens,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBonusItem(IconData icon, String title) {
-    return Column(
-      children: [
-        Container(
-          width: 50,
-          height: 50,
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Colors.pink, Colors.red],
-            ),
-            borderRadius: BorderRadius.circular(25),
-            border: Border.all(color: Colors.white, width: 2),
-          ),
-          child: Icon(icon, color: Colors.white, size: 24),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          title,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 10,
-            fontWeight: FontWeight.w500,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTokenPackage(String base, String bonus, String percentage, String price, Color color, AppLocalizations l10n) {
-    return Container(
-      height: 120,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [color, color.withOpacity(0.7)],
-        ),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Stack(
-        children: [
-          Positioned(
-            top: 8,
-            right: 8,
+          Expanded(
+            flex: 1,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
+              padding: EdgeInsets.all(width * 0.03),
+              child: Expanded(
+                child: ElevatedButton(
+                  onPressed: () {
+                    LoggerService.log('Jetonlar butonuna tıklandı');
+                    Navigator.pop(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(width * 0.04),
+                    ),
+                  ),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                                           child: Text(
+                         l10n.seeAllTokens,
+                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                               color: Colors.white,
+                               fontWeight: FontWeight.bold,
+                               fontSize: width * 0.025,
+                           ),
+                         textAlign: TextAlign.center,
+                       ),
+                  ),
+                ),
               ),
-              child: Text(
-                percentage,
-                style: TextStyle(
-                  color: color,
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  base,
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 12,
-                  ),
-                ),
-                Text(
-                  bonus,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const Text(
-                  'Jeton',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 10,
-                  ),
-                ),
-                const Spacer(),
-                Text(
-                  price,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  l10n.perWeek,
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 8,
-                  ),
-                ),
-              ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildBonusItem(BuildContext context, IconData icon, String title) {
+    final width = MediaQuery.of(context).size.width;
+
+    return Expanded(
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: width * 0.001),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Expanded(
+              flex: 2,
+              child: Container(
+                width: width * 0.02,
+                height: width * 0.02,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Colors.pink, Colors.red],
+                  ),
+                  borderRadius: BorderRadius.circular(width * 0.01),
+                  border: Border.all(color: Colors.white, width: 1),
+                ),
+                child: Icon(icon, color: Colors.white, size: width * 0.006),
+              ),
+            ),
+            Expanded(
+              flex: 1,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  title,   
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: width * 0.004,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTokenPackage(BuildContext context, String base, String bonus,
+      String percentage, String price, Color color, AppLocalizations l10n) {
+    final width = MediaQuery.of(context).size.width;
+
+    return Expanded(
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: width * 0.001),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [color, color.withValues(alpha: 0.7)],
+          ),
+          borderRadius: BorderRadius.circular(width * 0.008),
+        ),
+        child: Stack(
+          children: [
+            Positioned(
+              top: width * 0.002,
+              right: width * 0.002,
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                    horizontal: width * 0.002, vertical: width * 0.001),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(width * 0.003),
+                ),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    percentage,
+                    style: TextStyle(
+                      color: color,
+                      fontSize: width * 0.006,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.all(width * 0.004),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          base,
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: width * 0.006,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          bonus,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: width * 0.008,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          'Jeton',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: width * 0.004,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          price,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: width * 0.006,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          l10n.perWeek,
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: width * 0.003,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

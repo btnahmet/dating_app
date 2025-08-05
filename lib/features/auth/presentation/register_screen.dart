@@ -1,11 +1,10 @@
 import 'package:dating_app/core/services/api_service.dart';
 import 'package:dating_app/core/services/logger_service.dart';
-import 'package:dating_app/core/services/token_storage_service.dart';
 import 'package:dating_app/widgets/custom_button.dart';
 import 'package:dating_app/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:dating_app/l10n/app_localizations.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -21,7 +20,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _confirmPasswordController = TextEditingController();
   bool _obscureText = true;
   final _apiService = ApiService();
-  final _tokenStorage = TokenStorageService();
   bool _isLoading = false;
   bool _acceptedTerms = false;
 
@@ -69,7 +67,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     try {
       LoggerService.log('Kayıt işlemi başlatılıyor...');
-      final response = await _apiService.register(
+      await _apiService.register(
         _nameController.text,
         _emailController.text,
         _passwordController.text,
@@ -100,13 +98,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
+    final width = MediaQuery.of(context).size.width;
 
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 0),
+          padding: EdgeInsets.symmetric(
+            horizontal: width * 0.06,
+            vertical: height * 0.02,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -117,27 +118,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       fontWeight: FontWeight.bold,
                     ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: height * 0.01),
               Text(
                 // l10n.description,
                 'Tempus varius a vitae interdum id tortor elementum tristique eleifend at.',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
-              const SizedBox(height: 32),
+              SizedBox(height: height * 0.04),
               CustomTextField(
                 hintText: l10n.nameSurname,
                 prefixIcon: Icons.person_outline,
                 controller: _nameController,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: height * 0.02),
               CustomTextField(
                 hintText: l10n.email,
                 prefixIcon: Icons.email_outlined,
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: height * 0.02),
               // CustomTextField(
               //   hintText: l10n.password,
               //   prefixIcon: Icons.lock_outline,
@@ -193,7 +194,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   );
                 },
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: height * 0.02),
               GestureDetector(
                 onTap: () {
                   setState(() {
@@ -219,23 +220,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: height * 0.03),
               CustomButton(
                 text: _isLoading ? l10n.registering : l10n.register,
                 onTap: _isLoading ? null : () => _register(),
               ),
-              const SizedBox(height: 24),
-              const Row(
+              SizedBox(height: height * 0.03),
+              Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SocialIcon(icon: Icons.g_mobiledata),
-                  SizedBox(width: 16),
+                  SizedBox(width: width * 0.04),
                   SocialIcon(icon: Icons.apple),
-                  SizedBox(width: 16),
+                  SizedBox(width: width * 0.04),
                   SocialIcon(icon: Icons.facebook),
                 ],
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: height * 0.03),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -263,10 +264,11 @@ class SocialIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
     return CircleAvatar(
-      radius: 22,
+      radius: width * 0.055,
       backgroundColor: const Color(0xFF1F1F1F),
-      child: Icon(icon, color: Colors.white),
+      child: Icon(icon, color: Colors.white, size: width * 0.06),
     );
   }
 }

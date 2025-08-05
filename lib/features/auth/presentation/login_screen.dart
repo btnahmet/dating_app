@@ -4,7 +4,7 @@ import 'package:dating_app/widgets/custom_button.dart';
 import 'package:dating_app/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:dating_app/l10n/app_localizations.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -80,13 +80,16 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
+    final width = MediaQuery.of(context).size.width;
 
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+          padding: EdgeInsets.symmetric(
+            horizontal: width * 0.06,
+            vertical: height * 0.04,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -97,19 +100,19 @@ class _LoginScreenState extends State<LoginScreen> {
                       fontWeight: FontWeight.bold,
                     ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: height * 0.01),
               Text(
                 l10n.loginSubtitle,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
-              const SizedBox(height: 32),
+              SizedBox(height: height * 0.04),
               CustomTextField(
                 hintText: l10n.email,
                 prefixIcon: Icons.email_outlined,
                 controller: _emailController,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: height * 0.02),
               // CustomTextField(
               //   hintText: l10n.password,
               //   prefixIcon: Icons.lock_outline,
@@ -138,7 +141,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 },
               ),
 
-              const SizedBox(height: 12),
+              SizedBox(height: height * 0.015),
               Align(
                 alignment: Alignment.centerLeft,
                 child: TextButton(
@@ -146,23 +149,23 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Text(l10n.forgotPassword),
                 ),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: height * 0.015),
               CustomButton(
                 text: _isLoading ? l10n.loggingIn : l10n.login,
                 onTap: _isLoading ? null : () => _login(),
               ),
-              const SizedBox(height: 24),
-              const Row(
+              SizedBox(height: height * 0.03),
+              Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SocialIcon(icon: Icons.g_mobiledata),
-                  SizedBox(width: 16),
+                  SizedBox(width: width * 0.04),
                   SocialIcon(icon: Icons.apple),
-                  SizedBox(width: 16),
+                  SizedBox(width: width * 0.04),
                   SocialIcon(icon: Icons.facebook),
                 ],
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: height * 0.03),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -190,10 +193,11 @@ class SocialIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
     return CircleAvatar(
-      radius: 22,
+      radius: width * 0.055,
       backgroundColor: const Color(0xFF1F1F1F),
-      child: Icon(icon, color: Colors.white),
+      child: Icon(icon, color: Colors.white, size: width * 0.06),
     );
   }
 }

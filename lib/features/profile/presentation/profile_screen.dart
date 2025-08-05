@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:dating_app/l10n/app_localizations.dart';
 import '../../home/viewmodel/home_view_model.dart';
 import '../../home/model/movie_model.dart';
 import '../../premium/presentation/widgets/limited_offer_bottom_sheet.dart';
 import '../../../core/services/api_service.dart';
 import '../../../core/services/token_storage_service.dart';
+import '../../../core/services/logger_service.dart';
 import 'dart:convert';
 import 'package:lottie/lottie.dart';
 
@@ -32,8 +33,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.initState();
     _loadUserInfo();
     Future.microtask(() {
-      final viewModel = Provider.of<HomeViewModel>(context, listen: false);
-      viewModel.loadFavoriteMovies();
+      if (mounted) {
+        final viewModel = Provider.of<HomeViewModel>(context, listen: false);
+        viewModel.loadFavoriteMovies();
+      }
     });
   }
 
@@ -55,7 +58,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         }
       }
     } catch (e) {
-      print('Kullanıcı bilgileri yüklenirken hata: $e');
+      LoggerService.error('Kullanıcı bilgileri yüklenirken hata: $e');
     }
   }
 
@@ -87,7 +90,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         context.go('/login');
       }
     } catch (e) {
-      print('Logout hatası: $e');
+      LoggerService.error('Logout hatası: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -107,32 +110,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final viewModel = Provider.of<HomeViewModel>(context);
+    final height = MediaQuery.of(context).size.height;
+    final width = MediaQuery.of(context).size.width;
+    
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+          padding: EdgeInsets.symmetric(horizontal: width * 0.06),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 24),
+              SizedBox(height: height * 0.03),
               Row(
                 children: [
                   CircleAvatar(
+                    radius: width * 0.06,
                     backgroundColor: const Color(0xFF1F1F1F),
                     child: IconButton(
                       icon: _isLoggingOut
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
+                          ? SizedBox(
+                              width: width * 0.05,
+                              height: width * 0.05,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
                                 valueColor:
                                     AlwaysStoppedAnimation<Color>(Colors.white),
                               ),
                             )
-                          : const Icon(Icons.arrow_back, color: Colors.white),
+                          : Icon(Icons.arrow_back, color: Colors.white, size: width * 0.06),
                       onPressed: _isLoggingOut ? null : _logout,
                     ),
                   ),
@@ -147,24 +153,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Container(
                     decoration: BoxDecoration(
                       color: Colors.red,
-                      borderRadius: BorderRadius.circular(24),
+                      borderRadius: BorderRadius.circular(width * 0.06),
                     ),
                     child: Material(
                       color: Colors.transparent,
                       child: InkWell(
                         onTap: _showLimitedOffer,
-                        borderRadius: BorderRadius.circular(24),
+                        borderRadius: BorderRadius.circular(width * 0.06),
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: width * 0.04, vertical: height * 0.01),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(LucideIcons.gem,
-                                  size: 16, color: Colors.white),
-                              const SizedBox(width: 6),
-                              Text(l10n.limitedOffer,
-                                  style: const TextStyle(color: Colors.white)),
+                              Icon(LucideIcons.gem,
+                                  size: width * 0.04, color: Colors.white),
+                              SizedBox(width: width * 0.015),
+                              Flexible(
+                                child: Text(l10n.limitedOffer,
+                                    style: const TextStyle(color: Colors.white),
+                                    overflow: TextOverflow.ellipsis),
+                              ),
                             ],
                           ),
                         ),
@@ -173,23 +182,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: height * 0.03),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   CircleAvatar(
-                    radius: 36,
+                    radius: width * 0.09,
                     backgroundColor:
                         _userPhotoUrl.isEmpty ? const Color(0xFF1F1F1F) : null,
                     backgroundImage: _userPhotoUrl.isNotEmpty
                         ? NetworkImage(_userPhotoUrl)
                         : null,
                     child: _userPhotoUrl.isEmpty
-                        ? const Icon(Icons.person,
-                            color: Colors.white, size: 36)
+                        ? Icon(Icons.person,
+                            color: Colors.white, size: width * 0.09)
                         : null,
                   ),
-                  const SizedBox(width: 16),
+                  SizedBox(width: width * 0.04),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

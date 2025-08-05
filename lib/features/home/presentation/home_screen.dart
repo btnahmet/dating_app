@@ -4,6 +4,7 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import '../model/movie_model.dart';
 import '../viewmodel/home_view_model.dart';
 import '../../../core/services/token_storage_service.dart';
+import '../../../core/services/logger_service.dart';
 import 'package:lottie/lottie.dart';
 
 
@@ -21,13 +22,15 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    print('HomeScreen: initState çağrıldı');
+    LoggerService.log('HomeScreen: initState çağrıldı');
     Future.microtask(() {
-      final viewModel = Provider.of<HomeViewModel>(context, listen: false);
-      print('HomeScreen: Film yükleme başlatılıyor');
-      viewModel.loadMovies();
-      // Beğenilen filmleri de yükle
-      viewModel.loadFavoriteMovies();
+      if (mounted) {
+        final viewModel = Provider.of<HomeViewModel>(context, listen: false);
+        LoggerService.log('HomeScreen: Film yükleme başlatılıyor');
+        viewModel.loadMovies();
+        // Beğenilen filmleri de yükle
+        viewModel.loadFavoriteMovies();
+      }
     });
 
     _scrollController.addListener(() {
@@ -53,7 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final width = MediaQuery.of(context).size.width;
     final viewModel = Provider.of<HomeViewModel>(context);
 
-    print(
+    LoggerService.log(
         'HomeScreen: build çağrıldı - Film sayısı: ${viewModel.movies.length}, Loading: ${viewModel.isLoading}');
 
     return SafeArea(
@@ -180,30 +183,32 @@ class _MovieCard extends StatelessWidget {
                     viewModel.isFavorite(movie.id) ? Colors.red : Colors.white,
               ),
               onPressed: () async {
-                print(
+                LoggerService.log(
                     'HomeScreen: Beğeni butonuna tıklandı - Movie ID: ${movie.id}');
-                print('HomeScreen: Film başlığı: ${movie.title}');
-                print(
+                LoggerService.log('HomeScreen: Film başlığı: ${movie.title}');
+                LoggerService.log(
                     'HomeScreen: Şu anki beğeni durumu: ${viewModel.isFavorite(movie.id)}');
 
                 // Token kontrolü
                 final tokenStorage = TokenStorageService();
                 final token = await tokenStorage.getToken();
 
-                if (token == null) {
-                  print(
+                                                  if (token == null) {
+                  LoggerService.log(
                       'HomeScreen: Token bulunamadı, kullanıcı giriş yapmamış');
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content:
-                          Text('Film beğenmek için önce giriş yapmalısınız'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content:
+                            Text('Film beğenmek için önce giriş yapmalısınız'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  });
                   return;
                 }
 
-                print('HomeScreen: Token mevcut, beğeni işlemi başlatılıyor');
+                LoggerService.log('HomeScreen: Token mevcut, beğeni işlemi başlatılıyor');
                 viewModel.toggleFavorite(movie.id);
               },
             ),
