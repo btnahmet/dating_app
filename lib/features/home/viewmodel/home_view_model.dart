@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../data/movie_service.dart';
 import '../model/movie_model.dart';
 import '../../../core/services/logger_service.dart';
+import '../../../core/services/analytics_service.dart';
 
 class HomeViewModel extends ChangeNotifier {
   final MovieService _movieService = MovieService();
@@ -68,6 +69,13 @@ class HomeViewModel extends ChangeNotifier {
       
       if (success) {
         LoggerService.log('HomeViewModel: Film beğeni işlemi başarılı');
+        
+        // Analytics event'i gönder
+        if (isFavorite(movieId)) {
+          await AnalyticsService.logMovieUnfavorite();
+        } else {
+          await AnalyticsService.logMovieFavorite();
+        }
         
         // UI'ı hemen güncelle
         final movie = movies.firstWhere((m) => m.id == movieId, orElse: () => MovieModel(id: '', title: '', description: '', posterUrl: ''));

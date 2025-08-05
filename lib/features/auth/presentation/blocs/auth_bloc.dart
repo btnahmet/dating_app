@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../../../core/services/logger_service.dart';
+import '../../../../core/services/analytics_service.dart';
 
 // Events
 abstract class AuthEvent extends Equatable {
@@ -96,6 +97,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       LoggerService.log('Login işlemi başlatıldı: ${event.email}');
       final user = await authRepository.login(event.email, event.password);
       LoggerService.log('Login başarılı: ${user.name}');
+      
+      // Analytics event'i gönder
+      await AnalyticsService.logLogin();
+      await AnalyticsService.setUserProperties(
+        userId: user.id?.toString(),
+        userEmail: event.email,
+      );
+      
       emit(AuthSuccess(user: user));
     } catch (e) {
       LoggerService.error('Login hatası: $e');
@@ -110,6 +119,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       LoggerService.log('Register işlemi başlatıldı: ${event.email}');
       final user = await authRepository.register(event.name, event.email, event.password);
       LoggerService.log('Register başarılı: ${user.name}');
+      
+      // Analytics event'i gönder
+      await AnalyticsService.logRegister();
+      await AnalyticsService.setUserProperties(
+        userEmail: event.email,
+      );
+      
       emit(AuthSuccess(user: user));
     } catch (e) {
       LoggerService.error('Register hatası: $e');
@@ -123,6 +139,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     try {
       LoggerService.log('Fotoğraf yükleme başlatıldı: ${event.photoPath}');
       await authRepository.uploadPhoto(event.photoPath);
+      
+      // Analytics event'i gönder
+      await AnalyticsService.logPhotoUpload();
       
       // Refresh user data after photo upload
       final currentUser = await authRepository.getCurrentUser();
