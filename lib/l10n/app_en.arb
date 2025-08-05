@@ -43,5 +43,8 @@
   "selectTokenPackage": "Choose a token package to unlock",
   "seeAllTokens": "See All Tokens",
   "perWeek": "Per week",
-  "token": "Token"
+  "token": "Token",
+  "pleaseSelectPhoto": "Please select a photo first",
+  "photoUploadSuccess": "Photo uploaded successfully!",
+  "photoUploadFailed": "Photo upload failed"
 }

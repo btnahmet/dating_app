@@ -43,5 +43,8 @@
   "selectTokenPackage": "Kilidi açmak için bir jeton paketi seçin",
   "seeAllTokens": "Tüm Jetonları Gör",
   "perWeek": "Başına haftalık",
-  "token": "Jeton"
+  "token": "Jeton",
+  "pleaseSelectPhoto": "Lütfen önce bir fotoğraf seçin",
+  "photoUploadSuccess": "Fotoğraf başarıyla yüklendi!",
+  "photoUploadFailed": "Fotoğraf yükleme başarısız"
 }

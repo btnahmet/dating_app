@@ -355,6 +355,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Token'**
   String get token;
+
+  /// No description provided for @pleaseSelectPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a photo first'**
+  String get pleaseSelectPhoto;
+
+  /// No description provided for @photoUploadSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo uploaded successfully!'**
+  String get photoUploadSuccess;
+
+  /// No description provided for @photoUploadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo upload failed'**
+  String get photoUploadFailed;
 }
 
 class _AppLocalizationsDelegate

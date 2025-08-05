@@ -143,8 +143,8 @@ class LimitedOfferBottomSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: width * 0.1,
-            height: width * 0.1,
+            width: width * 0.08,
+            height: width * 0.08,
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 colors: [Colors.pink, Colors.red],
@@ -161,7 +161,7 @@ class LimitedOfferBottomSheet extends StatelessWidget {
               title,
               style: TextStyle(
                 color: Colors.white,
-                fontSize: width * 0.03,
+                fontSize: width * 0.025,
                 fontWeight: FontWeight.w500,
               ),
               textAlign: TextAlign.center,
@@ -190,7 +190,7 @@ class LimitedOfferBottomSheet extends StatelessWidget {
         children: [
           // Percentage Badge
           Positioned(
-            top: width * 0.02,
+            top: width * 0.01,
             right: width * 0.01,
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: width * 0.01, vertical: height * 0.002),
@@ -204,7 +204,7 @@ class LimitedOfferBottomSheet extends StatelessWidget {
                   percentage,
                   style: TextStyle(
                     color: color,
-                    fontSize: width * 0.03,
+                    fontSize: width * 0.02,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -215,7 +215,7 @@ class LimitedOfferBottomSheet extends StatelessWidget {
           // Content
           Expanded(
             child: Padding(
-              padding: EdgeInsets.all(width * 0.03),
+              padding: EdgeInsets.all(width * 0.02),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -226,7 +226,7 @@ class LimitedOfferBottomSheet extends StatelessWidget {
                       base,
                       style: TextStyle(
                         color: Colors.white70,
-                        fontSize: width * 0.04,
+                        fontSize: width * 0.025,
                       ),
                     ),
                   ),
@@ -247,7 +247,7 @@ class LimitedOfferBottomSheet extends StatelessWidget {
                       l10n.token,
                       style: TextStyle(
                         color: Colors.white70,
-                        fontSize: width * 0.025,
+                        fontSize: width * 0.02,
                       ),
                     ),
                   ),
@@ -258,7 +258,7 @@ class LimitedOfferBottomSheet extends StatelessWidget {
                       price,
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: width * 0.03,
+                        fontSize: width * 0.025,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -269,7 +269,7 @@ class LimitedOfferBottomSheet extends StatelessWidget {
                       l10n.perWeek,
                       style: TextStyle(
                         color: Colors.white70,
-                        fontSize: width * 0.02,
+                        fontSize: width * 0.018,
                       ),
                     ),
                   ),

@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:dio/dio.dart';
 import '../../domain/entities/user_entity.dart';
+import '../../../../core/services/logger_service.dart';
 
 abstract class AuthRemoteDataSource {
   Future<UserEntity> login(String email, String password);
@@ -65,15 +67,50 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<void> uploadPhoto(String photoPath) async {
     try {
-      final file = await MultipartFile.fromFile(photoPath);
+      // Dosya boyutunu kontrol et
+      final file = File(photoPath);
+      if (!await file.exists()) {
+        throw Exception('Dosya bulunamadı: $photoPath');
+      }
+      
+      // Dosya boyutunu kontrol et (5MB limit)
+      final fileSize = await file.length();
+      if (fileSize > 5 * 1024 * 1024) {
+        throw Exception('Dosya boyutu çok büyük (max 5MB)');
+      }
+      
+      // MultipartFile oluştur
+      final multipartFile = await MultipartFile.fromFile(
+        photoPath,
+        filename: 'profile_photo.jpg',
+        contentType: DioMediaType('image', 'jpeg'),
+      );
+      
+      // FormData oluştur - farklı field adlarını dene
       final formData = FormData.fromMap({
-        'photo': file,
+        'image': multipartFile,
       });
+      
+      // Content-Type header'ını manuel olarak ayarla
+      final response = await dio.post(
+        '/user/upload_photo',
+        data: formData,
+        options: Options(
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        ),
+      );
 
-      final response = await dio.post('/user/upload_photo', data: formData);
-
-      if (response.statusCode != 200) {
-        throw Exception('Photo upload failed');
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        // Fotoğraf yüklendikten sonra profil bilgilerini güncelle
+        final photoUrl = response.data['photoUrl'] ?? response.data['data']?['photoUrl'];
+        if (photoUrl != null) {
+          // Profil güncelleme işlemini atla, sadece fotoğraf yükleme başarılı
+          LoggerService.log('Fotoğraf yükleme başarılı, profil güncelleme atlanıyor');
+        }
+      } else {
+        throw Exception('Photo upload failed: ${response.statusCode}');
       }
     } catch (e) {
       throw Exception('Photo upload error: $e');

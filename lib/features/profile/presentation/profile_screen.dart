@@ -42,23 +42,93 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _loadUserInfo() async {
     try {
-      final token = await _tokenStorage.getToken();
-      if (token != null) {
-        final parts = token.split('.');
-        if (parts.length == 3) {
-          final payload = parts[1];
-          final normalized = base64Url.normalize(payload);
-          final resp = utf8.decode(base64Url.decode(normalized));
-          final payloadMap = json.decode(resp);
-
+      LoggerService.log('Kullanıcı bilgileri yükleniyor...');
+      
+      // Önce API'den güncel kullanıcı bilgilerini al
+      final response = await _apiService.getCurrentUser();
+      LoggerService.log('API Response: $response');
+      
+      if (response != null && response.isNotEmpty) {
+        final name = response['name'];
+        final photoUrl = response['photoUrl'];
+        
+        LoggerService.log('API\'den alınan veriler - Name: $name, PhotoUrl: $photoUrl');
+        
+        if (mounted) {
           setState(() {
-            _userName = payloadMap['name'] ?? 'Kullanıcı';
-            _userPhotoUrl = payloadMap['photoUrl'] ?? '';
+            _userName = name ?? 'Kullanıcı';
+            _userPhotoUrl = photoUrl ?? '';
           });
+          LoggerService.log('Kullanıcı bilgileri API\'den yüklendi: $_userName, $_userPhotoUrl');
+        }
+      } else {
+        LoggerService.log('API\'den veri alınamadı, token\'dan alınacak');
+        // API'den alamazsa token'dan al
+        final token = await _tokenStorage.getToken();
+        if (token != null) {
+          final parts = token.split('.');
+          if (parts.length == 3) {
+            final payload = parts[1];
+            final normalized = base64Url.normalize(payload);
+            final resp = utf8.decode(base64Url.decode(normalized));
+            final payloadMap = json.decode(resp);
+
+            LoggerService.log('Token payload: $payloadMap');
+
+            if (mounted) {
+              setState(() {
+                _userName = payloadMap['name'] ?? 'Kullanıcı';
+                _userPhotoUrl = payloadMap['photoUrl'] ?? '';
+              });
+              LoggerService.log('Kullanıcı bilgileri token\'dan yüklendi: $_userName, $_userPhotoUrl');
+            }
+          }
+        }
+      }
+      
+      // Eğer fotoğraf URL'i boşsa, birkaç kez daha dene
+      if (_userPhotoUrl.isEmpty) {
+        LoggerService.log('Fotoğraf URL\'i boş, tekrar deneniyor...');
+        for (int i = 0; i < 3; i++) {
+          await Future.delayed(Duration(seconds: i + 1));
+          if (!mounted) break;
+          
+          final retryResponse = await _apiService.getCurrentUser();
+          if (retryResponse != null && retryResponse['photoUrl'] != null && retryResponse['photoUrl'].isNotEmpty) {
+            LoggerService.log('Fotoğraf URL\'i bulundu: ${retryResponse['photoUrl']}');
+            if (mounted) {
+              setState(() {
+                _userPhotoUrl = retryResponse['photoUrl'];
+              });
+            }
+            break;
+          }
         }
       }
     } catch (e) {
       LoggerService.error('Kullanıcı bilgileri yüklenirken hata: $e');
+      // Hata durumunda token'dan al
+      try {
+        final token = await _tokenStorage.getToken();
+        if (token != null) {
+          final parts = token.split('.');
+          if (parts.length == 3) {
+            final payload = parts[1];
+            final normalized = base64Url.normalize(payload);
+            final resp = utf8.decode(base64Url.decode(normalized));
+            final payloadMap = json.decode(resp);
+
+            if (mounted) {
+              setState(() {
+                _userName = payloadMap['name'] ?? 'Kullanıcı';
+                _userPhotoUrl = payloadMap['photoUrl'] ?? '';
+              });
+            }
+          }
+        }
+      } catch (tokenError) {
+        LoggerService.error('Token\'dan bilgi alma hatası: $tokenError');
+      }
     }
   }
 
@@ -71,8 +141,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  void _navigateToUploadPhoto() {
-    context.push('/upload-photo');
+  void _navigateToUploadPhoto() async {
+    await context.push('/upload-photo');
+    // Fotoğraf yükleme sayfasından döndükten sonra kullanıcı bilgilerini yeniden yükle
+    // Kısa bir gecikme ekle ki API'nin güncellenmesi için zaman olsun
+    await Future.delayed(const Duration(seconds: 2));
+    if (mounted) {
+      _loadUserInfo();
+    }
   }
 
   Future<void> _logout() async {
@@ -124,57 +200,71 @@ class _ProfileScreenState extends State<ProfileScreen> {
               SizedBox(height: height * 0.03),
               Row(
                 children: [
-                  CircleAvatar(
-                    radius: width * 0.06,
-                    backgroundColor: const Color(0xFF1F1F1F),
-                    child: IconButton(
-                      icon: _isLoggingOut
-                          ? SizedBox(
-                              width: width * 0.05,
-                              height: width * 0.05,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor:
-                                    AlwaysStoppedAnimation<Color>(Colors.white),
-                              ),
-                            )
-                          : Icon(Icons.arrow_back, color: Colors.white, size: width * 0.06),
-                      onPressed: _isLoggingOut ? null : _logout,
+                  Expanded(
+                    flex: 1,
+                    child: CircleAvatar(
+                      radius: width * 0.05,
+                      backgroundColor: const Color(0xFF1F1F1F),
+                      child: IconButton(
+                        icon: _isLoggingOut
+                            ? SizedBox(
+                                width: width * 0.04,
+                                height: width * 0.04,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor:
+                                      AlwaysStoppedAnimation<Color>(Colors.white),
+                                ),
+                              )
+                            : Icon(Icons.arrow_back, color: Colors.white, size: width * 0.05),
+                        onPressed: _isLoggingOut ? null : _logout,
+                      ),
                     ),
                   ),
-                  const Spacer(),
-                  Text(
-                    l10n.profileDetails,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                  const Spacer(),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(width * 0.06),
+                  Expanded(
+                    flex: 2,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        l10n.profileDetails,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                        textAlign: TextAlign.center,
+                      ),
                     ),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: _showLimitedOffer,
-                        borderRadius: BorderRadius.circular(width * 0.06),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: width * 0.04, vertical: height * 0.01),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(LucideIcons.gem,
-                                  size: width * 0.04, color: Colors.white),
-                              SizedBox(width: width * 0.015),
-                              Flexible(
-                                child: Text(l10n.limitedOffer,
-                                    style: const TextStyle(color: Colors.white),
-                                    overflow: TextOverflow.ellipsis),
-                              ),
-                            ],
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(width * 0.05),
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: _showLimitedOffer,
+                          borderRadius: BorderRadius.circular(width * 0.05),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: width * 0.02, vertical: height * 0.008),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(LucideIcons.gem,
+                                    size: width * 0.035, color: Colors.white),
+                                SizedBox(width: width * 0.01),
+                                Expanded(
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Text(l10n.limitedOffer,
+                                        style: const TextStyle(color: Colors.white),
+                                        overflow: TextOverflow.ellipsis),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -186,37 +276,63 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  CircleAvatar(
-                    radius: width * 0.09,
-                    backgroundColor:
-                        _userPhotoUrl.isEmpty ? const Color(0xFF1F1F1F) : null,
-                    backgroundImage: _userPhotoUrl.isNotEmpty
-                        ? NetworkImage(_userPhotoUrl)
-                        : null,
-                    child: _userPhotoUrl.isEmpty
-                        ? Icon(Icons.person,
-                            color: Colors.white, size: width * 0.09)
-                        : null,
+                  // Sabit boyutlu profil fotoğrafı
+                  Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: _userPhotoUrl.isEmpty ? const Color(0xFF1F1F1F) : null,
+                    ),
+                    child: _userPhotoUrl.isNotEmpty
+                        ? ClipOval(
+                            child: Image.network(
+                              _userPhotoUrl,
+                              width: 80,
+                              height: 80,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => Container(
+                                width: 80,
+                                height: 80,
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Color(0xFF1F1F1F),
+                                ),
+                                child: Icon(Icons.person,
+                                    color: Colors.white, size: 40),
+                              ),
+                            ),
+                          )
+                        : Icon(Icons.person,
+                            color: Colors.white, size: 40),
                   ),
                   SizedBox(width: width * 0.04),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          _userName,
-                          style:
-                              Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            _userName,
+                            style:
+                                Theme.of(context).textTheme.titleMedium?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                         const SizedBox(height: 4),
-                        Text(
-                          'ID: 245677',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(color: Colors.white70),
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            'ID: 245677',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(color: Colors.white70),
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       ],
                     ),
@@ -224,18 +340,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Container(
                     decoration: BoxDecoration(
                       color: Colors.red,
-                      borderRadius: BorderRadius.circular(24),
+                      borderRadius: BorderRadius.circular(width * 0.06),
                     ),
                     child: Material(
                       color: Colors.transparent,
                       child: InkWell(
                         onTap: _navigateToUploadPhoto,
-                        borderRadius: BorderRadius.circular(24),
+                        borderRadius: BorderRadius.circular(width * 0.06),
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
-                          child: Text(l10n.addPhoto,
-                              style: const TextStyle(color: Colors.white)),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: width * 0.02, vertical: height * 0.008),
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(l10n.addPhoto,
+                                style: const TextStyle(color: Colors.white)),
+                          ),
                         ),
                       ),
                     ),
@@ -244,32 +363,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               const SizedBox(height: 24),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    l10n.favoriteMovies,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                  Expanded(
+                    flex: 3,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        l10n.favoriteMovies,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                        textAlign: TextAlign.left,
+                      ),
+                    ),
                   ),
-                  PopupMenuButton<String>(
-                    icon: const Icon(Icons.language,
-                        color: Colors.white, size: 20),
-                    onSelected: (value) {
-                      if (value == 'tr') {
-                        context
-                            .read<LocaleProvider>()
-                            .setLocale(const Locale('tr'));
-                      } else if (value == 'en') {
-                        context
-                            .read<LocaleProvider>()
-                            .setLocale(const Locale('en'));
-                      }
-                    },
-                    itemBuilder: (context) => [
-                      const PopupMenuItem(value: 'tr', child: Text('Türkçe')),
-                      const PopupMenuItem(value: 'en', child: Text('English')),
-                    ],
+                  Expanded(
+                    flex: 1,
+                    child: PopupMenuButton<String>(
+                      icon: Icon(Icons.language,
+                          color: Colors.white, size: width * 0.05),
+                      onSelected: (value) {
+                        if (value == 'tr') {
+                          context
+                              .read<LocaleProvider>()
+                              .setLocale(const Locale('tr'));
+                        } else if (value == 'en') {
+                          context
+                              .read<LocaleProvider>()
+                              .setLocale(const Locale('en'));
+                        }
+                      },
+                      itemBuilder: (context) => [
+                        const PopupMenuItem(value: 'tr', child: Text('Türkçe')),
+                        const PopupMenuItem(value: 'en', child: Text('English')),
+                      ],
+                    ),
                   ),
                 ],
               ),

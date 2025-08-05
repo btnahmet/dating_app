@@ -139,4 +139,13 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get token => 'Jeton';
+
+  @override
+  String get pleaseSelectPhoto => 'Lütfen önce bir fotoğraf seçin';
+
+  @override
+  String get photoUploadSuccess => 'Fotoğraf başarıyla yüklendi!';
+
+  @override
+  String get photoUploadFailed => 'Fotoğraf yükleme başarısız';
 }

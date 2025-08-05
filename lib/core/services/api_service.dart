@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:dio/dio.dart';
 import 'token_storage_service.dart';
 import 'logger_service.dart';
@@ -149,6 +150,120 @@ class ApiService {
       // Genel hata olsa bile token'ı temizle
       await TokenStorageService().clearToken();
       LoggerService.log('Logout genel hata, token temizlendi');
+    }
+  }
+
+    // Upload photo API endpoint
+  Future<Map<String, dynamic>> uploadPhoto(File photoFile) async {
+    try {
+      LoggerService.log('Upload photo API çağrısı başlatılıyor...');
+      
+      // Dosya boyutunu kontrol et
+      if (!await photoFile.exists()) {
+        throw Exception('Dosya bulunamadı: ${photoFile.path}');
+      }
+      
+      final fileSize = await photoFile.length();
+      if (fileSize > 5 * 1024 * 1024) {
+        throw Exception('Dosya boyutu çok büyük (max 5MB)');
+      }
+      
+      // API dokümantasyonuna göre field adı 'file' olmalı
+      LoggerService.log('API dokümantasyonuna göre field adı: file');
+      
+      final multipartFile = await MultipartFile.fromFile(
+        photoFile.path,
+        filename: 'profile_photo.jpg',
+        contentType: DioMediaType('image', 'jpeg'),
+      );
+      
+      final formData = FormData.fromMap({
+        'file': multipartFile, // API dokümantasyonuna göre 'file'
+      });
+      
+      final response = await _dio.post(
+        '/user/upload_photo',
+        data: formData,
+        options: Options(
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        ),
+      );
+      
+      LoggerService.log('Upload photo API yanıtı: ${response.statusCode}');
+      LoggerService.log('Upload photo API verisi: ${response.data}');
+      
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        // Fotoğraf yüklendikten sonra profil bilgilerini güncelle
+        final photoUrl = response.data['photoUrl'] ?? response.data['data']?['photoUrl'];
+        if (photoUrl != null) {
+          LoggerService.log('Fotoğraf URL\'i alındı: $photoUrl');
+          // API'de profil güncelleme endpoint'i yok, sadece fotoğraf yükleme başarılı
+          LoggerService.log('Fotoğraf yükleme başarılı, profil güncelleme endpoint\'i yok');
+        }
+        return response.data;
+      } else {
+        throw Exception('Fotoğraf yükleme başarısız: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      LoggerService.error('Upload photo DioException', e);
+      LoggerService.log('Status Code: ${e.response?.statusCode}');
+      LoggerService.log('Response Data: ${e.response?.data}');
+      throw Exception('Fotoğraf yükleme hatası: ${e.message}');
+    } catch (e) {
+      LoggerService.error('Upload photo genel hata', e);
+      throw Exception('Fotoğraf yükleme hatası: $e');
+    }
+  }
+
+  // Update user profile API endpoint - API'de böyle bir endpoint yok
+  // Sadece fotoğraf yükleme var, profil güncelleme yok
+  Future<Map<String, dynamic>> updateUserProfile(String photoUrl) async {
+    LoggerService.log('API\'de profil güncelleme endpoint\'i yok, sadece fotoğraf yükleme var');
+    LoggerService.log('Fotoğraf URL\'i: $photoUrl');
+    // API'de profil güncelleme endpoint'i olmadığı için başarılı sayıyoruz
+    return {'photoUrl': photoUrl};
+  }
+
+  // Get current user API endpoint
+  Future<Map<String, dynamic>?> getCurrentUser() async {
+    try {
+      LoggerService.log('Get current user API çağrısı başlatılıyor...');
+      
+      final response = await _dio.get('/user/profile');
+      
+      LoggerService.log('Get current user API yanıtı: ${response.statusCode}');
+      LoggerService.log('Get current user API verisi: ${response.data}');
+      
+      if (response.statusCode == 200) {
+        // API response'da data wrapper'ı var, onu çıkar
+        final responseData = response.data;
+        final userData = responseData['data'] ?? responseData;
+        
+        LoggerService.log('Kullanıcı verisi: $userData');
+        
+        // Eğer userData null veya boş ise, null döndür
+        if (userData == null || userData.isEmpty) {
+          LoggerService.log('Kullanıcı verisi boş, null döndürülüyor');
+          return null;
+        }
+        
+        return userData;
+      } else {
+        LoggerService.log('Get current user başarısız, null döndürülüyor');
+        return null;
+      }
+    } on DioException catch (e) {
+      LoggerService.error('Get current user DioException', e);
+      LoggerService.log('Status Code: ${e.response?.statusCode}');
+      LoggerService.log('Response Data: ${e.response?.data}');
+      LoggerService.log('Get current user hatası, null döndürülüyor');
+      return null;
+    } catch (e) {
+      LoggerService.error('Get current user genel hata', e);
+      LoggerService.log('Get current user genel hatası, null döndürülüyor');
+      return null;
     }
   }
 }

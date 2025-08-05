@@ -139,4 +139,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get token => 'Token';
+
+  @override
+  String get pleaseSelectPhoto => 'Please select a photo first';
+
+  @override
+  String get photoUploadSuccess => 'Photo uploaded successfully!';
+
+  @override
+  String get photoUploadFailed => 'Photo upload failed';
 }

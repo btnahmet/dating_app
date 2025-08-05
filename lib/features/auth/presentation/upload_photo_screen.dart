@@ -1,11 +1,12 @@
 import 'dart:io';
 
 import 'package:dating_app/core/services/logger_service.dart';
+import 'package:dating_app/core/services/api_service.dart';
 import 'package:dating_app/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:go_router/go_router.dart';
 import 'package:dating_app/l10n/app_localizations.dart';
+import 'package:go_router/go_router.dart';
 
 class UploadPhotoScreen extends StatefulWidget {
   const UploadPhotoScreen({super.key});
@@ -16,15 +17,9 @@ class UploadPhotoScreen extends StatefulWidget {
 
 class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
   XFile? _selectedImage;
+  bool _isUploading = false;
 
-  // Future<void> _pickImage() async {
-  //   final picker = ImagePicker();
-  //   final picked = await picker.pickImage(source: ImageSource.gallery);
-  //   if (picked != null) {
-  //     setState(() => _selectedImage = picked);
-  //   }
-  // }
-Future<void> _pickImage() async {
+  Future<void> _pickImage() async {
     try {
       LoggerService.log('Picking image from gallery...');
       final picker = ImagePicker();
@@ -37,6 +32,50 @@ Future<void> _pickImage() async {
       }
     } catch (e, s) {
       LoggerService.error('Image picking failed.', e, s);
+    }
+  }
+
+  Future<void> _uploadPhoto() async {
+    setState(() {
+      _isUploading = true;
+    });
+
+    try {
+      if (_selectedImage != null) {
+        LoggerService.log('Uploading photo to API...');
+        
+        // Doğrudan API service kullanarak fotoğraf yükle
+        final apiService = ApiService();
+        await apiService.uploadPhoto(File(_selectedImage!.path));
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(AppLocalizations.of(context)!.photoUploadSuccess)),
+          );
+        }
+      } else {
+        LoggerService.log('Fotoğraf seçilmedi, profil sayfasına yönlendiriliyor...');
+      }
+      
+      if (mounted) {
+        // Ana sayfaya git (fotoğraf yüklensin veya yüklenmesin)
+        context.go('/home');
+      }
+    } catch (e) {
+      LoggerService.error('Photo upload failed', e);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${AppLocalizations.of(context)!.photoUploadFailed}: $e')),
+        );
+        // Hata olsa bile ana sayfaya git
+        context.go('/home');
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isUploading = false;
+        });
+      }
     }
   }
   @override
@@ -113,14 +152,10 @@ Future<void> _pickImage() async {
                 ),
               ),
               const Spacer(),
-              CustomButton(
-                text: l10n.continueButton,
-                // onTap: () => context.go('/home'),
-                 onTap: () {
-                  LoggerService.log('Continue tapped, navigating to /home');
-                  context.go('/home');
-                },
-              ),
+                             CustomButton(
+                 text: _isUploading ? 'Yükleniyor...' : 'Devam Et',
+                 onTap: _isUploading ? null : _uploadPhoto,
+               ),
               SizedBox(height: height * 0.03),
             ],
           ),
