@@ -51,6 +51,9 @@ Modern ve kullanıcı dostu bir dating uygulaması. Flutter ile geliştirilmiş,
 - **Firebase Analytics**: Kullanıcı davranışları takibi
 - **Firebase Crashlytics**: Hata raporlama ve izleme
 - **Custom Events**: Özel analitik event'leri
+<img width="1550" height="929" alt="image" src="https://github.com/user-attachments/assets/661eb0e6-ddf5-42c9-99f1-7c18842baf92" />
+<img width="1441" height="782" alt="image" src="https://github.com/user-attachments/assets/2cbeb428-1e0a-476a-b18b-35dd84cef98a" />
+
 
 ### Navigasyon
 - **Bottom Navigation Bar ile sayfa geçişler**
@@ -75,6 +78,7 @@ Modern ve kullanıcı dostu bir dating uygulaması. Flutter ile geliştirilmiş,
 
 ### Animasyon İmplementasyonu (Lottie)
 ![Movie Loading](https://github.com/user-attachments/assets/149ed5f9-81b1-4aaf-9e8b-d6b6af8a5e36)
+![No Data](https://github.com/user-attachments/assets/1aa94130-786d-46dd-b624-9bccf4b055b1)
 
 ### Splash Screen ve Uygulama İkonu
 
