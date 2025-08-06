@@ -79,7 +79,7 @@ Modern ve kullanıcı dostu bir dating uygulaması. Flutter ile geliştirilmiş,
 
 ### Splash Screen ve Uygulama İkonu
 <img width="374" height="844" alt="Ekran görüntüsü 2025-08-06 091550" src="https://github.com/user-attachments/assets/63949934-0625-4b1d-9a51-9d97eef5dbc7" />
-<img width="384" height="814" alt="Ekran görüntüsü 2025-08-06 091935" src="https://github.com/user-attachments/assets/8b255729-f739-4337-b712-a7c7fb55c8a2" />
+<img width="374" height="844" alt="image" src="https://github.com/user-attachments/assets/3d7107d1-33ef-449a-8054-b29bb51a1303" />
 
 
 ##  Teknolojiler
