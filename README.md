@@ -51,9 +51,6 @@ Modern ve kullanıcı dostu bir dating uygulaması. Flutter ile geliştirilmiş,
 - **Firebase Analytics**: Kullanıcı davranışları takibi
 - **Firebase Crashlytics**: Hata raporlama ve izleme
 - **Custom Events**: Özel analitik event'leri
-<img width="1550" height="929" alt="image" src="https://github.com/user-attachments/assets/661eb0e6-ddf5-42c9-99f1-7c18842baf92" />
-<img width="1441" height="782" alt="image" src="https://github.com/user-attachments/assets/2cbeb428-1e0a-476a-b18b-35dd84cef98a" />
-
 
 ### Navigasyon
 - **Bottom Navigation Bar ile sayfa geçişler**
