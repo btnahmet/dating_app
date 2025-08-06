@@ -56,7 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
           // Analytics event'i gönder
           AnalyticsService.logLogin();
           AnalyticsService.setUserProperties(
-            userId: state.user.id?.toString(),
+            userId: state.user.id.toString(),
             userEmail: _emailController.text,
           );
           

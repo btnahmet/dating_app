@@ -101,7 +101,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       // Analytics event'i gönder
       await AnalyticsService.logLogin();
       await AnalyticsService.setUserProperties(
-        userId: user.id?.toString(),
+        userId: user.id.toString(),
         userEmail: event.email,
       );
       
