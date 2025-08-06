@@ -210,11 +210,10 @@ lib/
 ```
 <img width="395" height="841" alt="Ekran görüntüsü 2025-08-06 091621" src="https://github.com/user-attachments/assets/b3f0dc13-ecd1-4feb-8955-09dc49a82dc8" />
 <img width="393" height="847" alt="Ekran görüntüsü 2025-08-06 091633" src="https://github.com/user-attachments/assets/570566e6-501f-433e-9bc8-645f0d5dead1" />
-<img width="380" height="817" alt="Ekran görüntüsü 2025-08-06 091741" src="https://github.com/user-attachments/assets/c9547fba-8410-4d66-bb3c-6a5c869fa03a" />
+<img width="383" height="797" alt="Ekran görüntüsü 2025-08-06 092802" src="https://github.com/user-attachments/assets/85942e31-252e-494e-b1a9-ebd3b61d71bb" />
 <img width="387" height="798" alt="Ekran görüntüsü 2025-08-06 091755" src="https://github.com/user-attachments/assets/bfb4f5f3-d9e4-426e-98fb-2814c2bbdd59" />
-<img width="387" height="786" alt="Ekran görüntüsü 2025-08-06 091821" src="https://github.com/user-attachments/assets/417c029d-a582-460c-868b-0bd6ac03606f" />
+<img width="374" height="789" alt="Ekran görüntüsü 2025-08-06 092752" src="https://github.com/user-attachments/assets/fc426e69-f814-4618-999d-f40ca9419b4d" />
 <img width="385" height="815" alt="Ekran görüntüsü 2025-08-06 091830" src="https://github.com/user-attachments/assets/2d985065-c173-4d9d-82a5-d0e606e3716e" />
-<img width="392" height="803" alt="Ekran görüntüsü 2025-08-06 091845" src="https://github.com/user-attachments/assets/c5b5af7e-c3a4-4bcf-ab89-396dba010ed1" />
 <img width="388" height="810" alt="Ekran görüntüsü 2025-08-06 091907" src="https://github.com/user-attachments/assets/135c783c-15d1-47ad-8c58-1ad9c1a64f62" />
 
 ##  BLoC State Management
