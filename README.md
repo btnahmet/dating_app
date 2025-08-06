@@ -76,6 +76,16 @@ Modern ve kullanıcı dostu bir dating uygulaması. Flutter ile geliştirilmiş,
 ### Animasyon İmplementasyonu (Lottie)
 https://lottie.host/embed/9aa98aaf-ca34-43ea-9bca-89adba6ba0e9/DsS6WRAakx.lottie
 
+DotLottieAnimation(
+    source = DotLottieSource.Url("https://lottie.host/9aa98aaf-ca34-43ea-9bca-89adba6ba0e9/DsS6WRAakx.lottie"),
+    autoplay = true,
+    loop = true,
+    speed = 3f,
+    useFrameInterpolation = false,
+    playMode = Mode.Forward,
+    modifier = Modifier.background(Color.LIGHT_GRAY)
+)
+
 ### Splash Screen ve Uygulama İkonu
 
 
