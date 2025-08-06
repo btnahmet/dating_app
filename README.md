@@ -74,6 +74,7 @@ Modern ve kullanıcı dostu bir dating uygulaması. Flutter ile geliştirilmiş,
 ## Güvenli Token Saklama ve Yönetimi
 
 ### Animasyon İmplementasyonu (Lottie)
+[noData.json](https://github.com/user-attachments/files/21611337/noData.json)[movieAnimation.json](https://github.com/user-attachments/files/21611338/movieAnimation.json)
 
 ### Splash Screen ve Uygulama İkonu
 
