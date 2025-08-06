@@ -215,7 +215,7 @@ lib/
 <img width="374" height="789" alt="Ekran görüntüsü 2025-08-06 092752" src="https://github.com/user-attachments/assets/fc426e69-f814-4618-999d-f40ca9419b4d" />
 <img width="385" height="815" alt="Ekran görüntüsü 2025-08-06 091830" src="https://github.com/user-attachments/assets/2d985065-c173-4d9d-82a5-d0e606e3716e" />
 <img width="388" height="810" alt="Ekran görüntüsü 2025-08-06 091907" src="https://github.com/user-attachments/assets/135c783c-15d1-47ad-8c58-1ad9c1a64f62" />
-<img width="247" height="513" alt="image" src="https://github.com/user-attachments/assets/084b0ce0-d749-40ba-8e4b-25e372e1baf0" />
+<img width="388" height="810" alt="image" src="https://github.com/user-attachments/assets/084b0ce0-d749-40ba-8e4b-25e372e1baf0" />
 
 ##  BLoC State Management
 
